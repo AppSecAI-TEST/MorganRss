@@ -2,6 +2,8 @@ package com.morladim.morganrss.rss2;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Namespace;
+import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
 
 /**
@@ -10,11 +12,17 @@ import org.simpleframework.xml.Root;
  * @author morladim
  */
 @Root(name = "rss", strict = false)
+@NamespaceList({
+        @Namespace(reference = "http://purl.org/rss/1.0/modules/content/"),
+        @Namespace(reference = "http://wellformedweb.org/CommentAPI/"),
+        @Namespace(reference = "http://purl.org/dc/elements/1.1/"),
+        @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom")
+})
 public class Rss2Xml {
-    @Element(name = "channel", type = Rss2Channel.class)
+    @Element(type = Rss2Channel.class)
     public Rss2Channel channel;
 
-    @Attribute(name = "version")
+    @Attribute
     public String version;
 
 }

@@ -15,11 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.morladim.morganrss.rss2.Rss2Xml;
 import com.morladim.morganrss.main.RssFeed;
 import com.morladim.morganrss.main.RssHandler;
 import com.morladim.morganrss.main.RssSource;
+import com.morladim.morganrss.rss2.Rss2Xml;
 
+import org.simpleframework.xml.convert.AnnotationStrategy;
+import org.simpleframework.xml.core.Persister;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -101,9 +103,13 @@ public class MainActivity extends AppCompatActivity
                 .subscribe(new Consumer<Rss2Xml>() {
                     @Override
                     public void accept(@io.reactivex.annotations.NonNull Rss2Xml rss2Xml) throws Exception {
+
                         System.out.println("ddddddd");
                         System.out.println(rss2Xml.channel.title);
-                        System.out.println(rss2Xml.version);
+//                        System.out.println(rss2Xml.channel.atomLink);
+//                        System.out.println(rss2Xml.channel.link);
+                        System.out.println(rss2Xml.channel.atomLink.href);
+//                        System.out.println(rss2Xml.channel.atomLink.href);
                         System.out.println("ddddddd");
 
                     }
@@ -141,10 +147,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     public <T> T createByXML(String baseUrl, Class<T> service) {
+
+
+        AnnotationStrategy annotationStrategy = new AnnotationStrategy();
+//        Format format = new Format(0, null, new HyphenStyle(), Verbosity.HIGH);
+        Persister persister = new Persister(annotationStrategy);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(getClient())
-                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .addConverterFactory(SimpleXmlConverterFactory.create(persister))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         return retrofit.create(service);
