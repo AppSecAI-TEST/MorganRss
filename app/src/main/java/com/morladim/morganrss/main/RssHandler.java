@@ -12,7 +12,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class RssHandler extends DefaultHandler {
 
 
-    private RssFeed rssFeed;//用于保存解析过程中的channel
+    private RssFeed rssFeed = new RssFeed();//用于保存解析过程中的channel
     private RssItem rssItem;//用于保存解析过程中的item
     String lastElementName = ""; //标记变量，用于标记在解析过程中我们关心的几个标签，若不是我们关心的标签，记做 0
     private final int RSS_TITLE = 1;//若是title标签,记做 1,注意有两个title,但我们都保存在item的title成员变量中
@@ -39,6 +39,9 @@ public class RssHandler extends DefaultHandler {
 
     public void endDocument() throws SAXException {
 
+        System.out.println("0000000");
+        System.out.println(rssFeed);
+        System.out.println("0000000");
 //这个方法在整个xml文档解析结束时执行,一般需要在该方法中返回或保存整个文档解析解析结果,但由于
 
         //我们已经在解析过程中把结果保持在rssFeed中,所以这里什么也不做
@@ -118,7 +121,7 @@ public class RssHandler extends DefaultHandler {
 
     public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
 
-
+//        System.out.println(rssFeed);
 //如果解析一个item节点结束，就将rssItem添加到rssFeed中。
         if (localName.equals("item")) {
             rssFeed.addItem(rssItem);

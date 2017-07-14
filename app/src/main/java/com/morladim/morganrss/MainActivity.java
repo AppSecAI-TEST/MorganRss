@@ -15,24 +15,45 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.morladim.morganrss.rss2.Rss2Xml;
 import com.morladim.morganrss.main.RssFeed;
 import com.morladim.morganrss.main.RssHandler;
 import com.morladim.morganrss.main.RssSource;
 
 import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.OutputKeys;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+//import io.reactivex.android.schedulers.AndroidSchedulers;
+//import io.reactivex.annotations.NonNull;
+//import io.reactivex.android.schedulers.AndroidSchedulers;
+//import io.reactivex.functions.Consumer;
+//import rx.android.schedulers.AndroidSchedulers;
+//import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-MHandler handler=                    new MHandler();
+    MHandler handler = new MHandler();
 
 
     @Override
@@ -60,19 +81,78 @@ MHandler handler=                    new MHandler();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 //        SAXParser
-       final RssSource source = new RssSource("知乎", "http://zhihu.com/rss");
+        final RssSource source = new RssSource("知乎", "http://zhihu.com/rss");
         System.out.println("==================");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                rssFeed = getFeed(source.getUrl());
-                System.out.println(rssFeed.getAllItems());
-                handler.sendEmptyMessage(1);
-            }
-        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                rssFeed = getFeed("https://www.zhihu.com/rss");
+//                System.out.println(rssFeed.getAllItems());
+//                handler.sendEmptyMessage(1);
+//            }
+//        }).start();
+
+        NewsApi api = createByXML("http://www.baidu.com", NewsApi.class);
+        api.getXml()
+//        api.getXml("https://www.zhihu.com/rss")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+
+                .subscribe(new Consumer<Rss2Xml>() {
+                    @Override
+                    public void accept(@io.reactivex.annotations.NonNull Rss2Xml rss2Xml) throws Exception {
+                        System.out.println("ddddddd");
+                        System.out.println(rss2Xml.channel.title);
+                        System.out.println(rss2Xml.version);
+                        System.out.println("ddddddd");
+
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        System.out.println(throwable);
+                    }
+                });
+
+
     }
+
+//    AndroidSchedulers
+
+    private static final int CONNECT_TIME_OUT = 5;
+    private static final int READ_TIME_OUT = 5;
+    private static final int WRITE_TIME_OUT = 5;
+
+    private OkHttpClient getClient() {
+        OkHttpClient client =
+                new OkHttpClient.Builder()
+                        .connectTimeout(CONNECT_TIME_OUT, SECONDS)
+                        .readTimeout(READ_TIME_OUT, SECONDS)
+                        .writeTimeout(WRITE_TIME_OUT, SECONDS)
+//                        .cache(getCache())
+                        .retryOnConnectionFailure(true)
+//                        .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+//                        .addInterceptor(new HeadInterceptor())
+//                        .addInterceptor(new CookieInterceptor())
+//                        .addInterceptor(new CacheInterceptor())
+//                        .addInterceptor(new LoginInterceptor())
+                        .build();
+        return client;
+    }
+
+    public <T> T createByXML(String baseUrl, Class<T> service) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .client(getClient())
+                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build();
+        return retrofit.create(service);
+    }
+
     RssFeed rssFeed;
-    private class MHandler extends Handler{
+
+    private class MHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             System.out.println("---------------------");
@@ -82,27 +162,65 @@ MHandler handler=                    new MHandler();
     }
 
     private RssFeed getFeed(String urlString) {
+//        try {
         try {
             URL url = new URL(urlString);
-            SAXParserFactory factory = SAXParserFactory.newInstance();  // 构建Sax解析工厂
-            SAXParser parser = factory.newSAXParser(); // 使用Sax解析工厂构建Sax解析器
-            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
-//            Charset charset = Charset.forName("UTF-8");
-            XMLReader xmlreader = parser.getXMLReader();   // 使用Sax解析器构建xml Reader
-
-            RssHandler rssHandler = new RssHandler(); // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
-//            rssHandler.
-            xmlreader.setContentHandler(rssHandler);     // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
-
-
-            InputSource is = new InputSource(url.openStream());      // 使用url打开流,并将流作为xml Reader的输入源并解析
-            xmlreader.parse(is);
-
-            return rssHandler.getFeed();     // 将解析结果作为 RSSFeed 对象返回
-        } catch (Exception ee) {
-            ee.printStackTrace();
-            return null;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
+        SAXParserFactory factory = SAXParserFactory.newInstance();  // 构建Sax解析工厂
+        SAXParser parser = null; // 使用Sax解析工厂构建Sax解析器
+        try {
+            parser = factory.newSAXParser();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
+//        try {
+//            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
+//        } catch (SAXNotRecognizedException e) {
+//            e.printStackTrace();
+//        } catch (SAXNotSupportedException e) {
+//            e.printStackTrace();
+//        }
+
+//            SAXParser parser = factory.newSAXParser(); // 使用Sax解析工厂构建Sax解析器
+//            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
+//            Charset charset = Charset.forName("UTF-8");
+//            XMLReader xmlreader = parser.getXMLReader();   // 使用Sax解析器构建xml Reader
+
+        RssHandler rssHandler = new RssHandler(); // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
+//            rssHandler.
+//            xmlreader.setContentHandler(rssHandler);     // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
+
+
+        InputSource is = new InputSource();      // 使用url打开流,并将流作为xml Reader的输入源并解析
+//            is.setEncoding("GB2312");
+//            is.setEncoding("gbk");
+        is.setEncoding("UTF-8");
+        is.setCharacterStream(new StringReader(urlString));
+        try {
+            parser.parse(is, rssHandler);
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+//            xmlreader.parse(is);
+
+//            InputStream inputStream = new BufferedInputStream(url.openStream());
+//
+//            InputStreamReader isr = new InputStreamReader(inputStream,"utf-8");
+
+
+        return rssHandler.getFeed();     // 将解析结果作为 RSSFeed 对象返回
+//        } catch (Exception ee) {
+//            ee.printStackTrace();
+//            return null;
+//        }
     }
 
     @Override
