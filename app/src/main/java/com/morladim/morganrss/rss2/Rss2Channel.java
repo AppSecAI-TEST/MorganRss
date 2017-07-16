@@ -1,19 +1,20 @@
 package com.morladim.morganrss.rss2;
 
+import org.simpleframework.xml.Default;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Namespace;
-import org.simpleframework.xml.Path;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.convert.Convert;
+
+import java.util.List;
 
 /**
+ * channel标签
  * <br>创建时间：2017/7/14.
  *
  * @author morladim
  */
 @Root(name = "channel", strict = false)
-@Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom")
-@Convert(ChannelConverter.class)
+@Default
 public class Rss2Channel {
 
     /**
@@ -22,29 +23,38 @@ public class Rss2Channel {
     @Element(name = "title", required = false)
     public String title;
 
-
-    //    @Namespace(prefix = "")
-//    @Element(name = "link", required = false)
-//    @Path("link")
-//    @Text(required = false)
-//    public String link;
-
-//    @Namespace(prefix = "atom")
-//    @Element(name = "link", required = false)
-//    @Attribute(name = "href", required = false)
-//    public String linkxx;
-
+    /**
+     * 语言
+     */
     @Element(name = "language", required = false)
     public String language;
 
+    /**
+     * 频道图片
+     */
     @Element(name = "image", required = false, type = ChannelImage.class)
     public ChannelImage image;
 
-    @Element(required = false)
-    public String link;
+    /**
+     * 解析link和atom:link
+     */
+    @ElementList(inline = true, entry = "link", type = Link.class, required = false)
+    public List<Link> linkList;
 
-//    @Path("link")
-    @Namespace(reference = "http://www.w3.org/2005/Atom")
-    @Element(name = "link",required = false, type = AtomLink.class)
-    public AtomLink atomLink;
+
+    @ElementList(inline = true, entry = "item", type = Item.class, required = false)
+    public List<Item> itemList;
+
+    @Element(required = false)
+    public String description;
+
+    @Element(required = false)
+    public String lastBuildDate;
+
+    @Element(required = false)
+    public String updatePeriod;
+
+    @Element(required = false)
+    public String updateFrequency;
+
 }

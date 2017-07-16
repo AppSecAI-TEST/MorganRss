@@ -7,10 +7,12 @@ import org.simpleframework.xml.stream.OutputNode;
 import java.io.Serializable;
 
 /**
+ * 转换器例子
  * <br>创建时间：2017/7/14.
  *
  * @author morladim
  */
+@Deprecated
 public class ChannelConverter implements Converter<Rss2Channel>, Serializable {
 
     @Override
@@ -27,13 +29,13 @@ public class ChannelConverter implements Converter<Rss2Channel>, Serializable {
                     break;
                 case "link":
                     if (child.getPrefix() != null && child.getPrefix().equals("atom")) {
-                        AtomLink atom = new AtomLink();
+                        Link atom = new Link();
                         atom.href = (child.getAttribute("href").getValue());
                         atom.rel = (child.getAttribute("rel").getValue());
                         atom.type = (child.getAttribute("type").getValue());
-                        channel.atomLink = (atom);
+//                        channel.atomLink = (atom);
                     } else {
-                        channel.link = (child.getValue());
+//                        channel.link = (child.getValue());
                     }
                     break;
                 default:

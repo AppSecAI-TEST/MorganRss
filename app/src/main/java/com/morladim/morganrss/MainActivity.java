@@ -15,6 +15,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.morladim.morganrss.database.ChannelManager;
+import com.morladim.morganrss.database.RssVersionManager;
+import com.morladim.morganrss.database.entity.Channel;
 import com.morladim.morganrss.main.RssFeed;
 import com.morladim.morganrss.main.RssHandler;
 import com.morladim.morganrss.main.RssSource;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -104,11 +108,24 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void accept(@io.reactivex.annotations.NonNull Rss2Xml rss2Xml) throws Exception {
 
+                        String version = rss2Xml.version;
+                        if (version != null) {
+                            long versionId = RssVersionManager.insertOrUpdate(version);
+                            System.out.println("versionId " + versionId);
+//                            Channel channel = ChannelManager. rss2Xml.channel;
+                            long channelId = ChannelManager.insertOrUpdate(rss2Xml.channel, versionId);
+
+                            System.out.println("channelId =" + channelId);
+                            List<Channel> list = ChannelManager.getAll();
+
+                        }
+
+
                         System.out.println("ddddddd");
                         System.out.println(rss2Xml.channel.title);
 //                        System.out.println(rss2Xml.channel.atomLink);
 //                        System.out.println(rss2Xml.channel.link);
-                        System.out.println(rss2Xml.channel.atomLink.href);
+//                        System.out.println(rss2Xml.channel.atomLink.href);
 //                        System.out.println(rss2Xml.channel.atomLink.href);
                         System.out.println("ddddddd");
 

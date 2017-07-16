@@ -13,10 +13,12 @@ import org.simpleframework.xml.Root;
  */
 @Root(name = "rss", strict = false)
 @NamespaceList({
-        @Namespace(reference = "http://purl.org/rss/1.0/modules/content/"),
-        @Namespace(reference = "http://wellformedweb.org/CommentAPI/"),
-        @Namespace(reference = "http://purl.org/dc/elements/1.1/"),
-        @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom")
+        @Namespace(reference = "http://purl.org/rss/1.0/modules/content/", prefix = "content"),
+        @Namespace(reference = "http://wellformedweb.org/CommentAPI/", prefix = "wfw"),
+        @Namespace(reference = "http://purl.org/dc/elements/1.1/", prefix = "dc"),
+        @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom"),
+        @Namespace(reference = "http://purl.org/rss/1.0/modules/syndication/", prefix = "sy"),
+        @Namespace(reference = "http://purl.org/rss/1.0/modules/slash/", prefix = "slash")
 })
 public class Rss2Xml {
     @Element(type = Rss2Channel.class)
@@ -26,5 +28,3 @@ public class Rss2Xml {
     public String version;
 
 }
-
-

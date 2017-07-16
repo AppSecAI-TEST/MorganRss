@@ -14,4 +14,12 @@ public class ChannelImage {
 
     @Element(name = "link", required = false)
     public String link;
+
+    @Element(required = false)
+    public String url;
+
+    @Element(required = false)
+    public String title;
+
+
 }
