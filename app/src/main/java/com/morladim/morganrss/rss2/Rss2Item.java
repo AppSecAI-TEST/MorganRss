@@ -8,18 +8,21 @@ import org.simpleframework.xml.Root;
 import java.util.List;
 
 /**
- * Created by morladim on 2017/7/15.
+ * item标签
+ * <br>创建时间：2017/7/15.
+ *
+ * @author morladim
  */
-@Root(strict = false)
-public class Item {
-    @Element(required = false)
+@Root(name = "item", strict = false)
+public class Rss2Item {
+
     public String title;
 
     @Element(required = false)
     public String link;
 
-    @ElementList(entry = "comments",required = false, inline = true, type = String.class)
-    public List<String> comments;
+    @ElementList(entry = "comments", required = false, inline = true, type = String.class)
+    public List<String> commentList;
 
     @Element(required = false)
     public String pubDate;
@@ -44,9 +47,4 @@ public class Item {
     @Namespace(reference = "http://wellformedweb.org/CommentAPI/")
     @Element(required = false)
     public String commentRss;
-
-//    @Namespace(reference = "http://purl.org/rss/1.0/modules/slash/")
-//    @Element(required = false)
-//    public String comments;
-
 }

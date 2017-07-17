@@ -56,11 +56,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 //import rx.android.schedulers.AndroidSchedulers;
 //import rx.schedulers.Schedulers;
 
+//http://blog.csdn.net/qq_37149313/article/details/70264656
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     MHandler handler = new MHandler();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        List<Channel> list = ChannelManager.getAll();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity
 
                         System.out.println("ddddddd");
                         System.out.println(rss2Xml.channel.title);
+                        System.out.println(rss2Xml.channel.image.link);
 //                        System.out.println(rss2Xml.channel.atomLink);
 //                        System.out.println(rss2Xml.channel.link);
 //                        System.out.println(rss2Xml.channel.atomLink.href);

@@ -61,8 +61,8 @@ public class Channel {
 
     @Generated(hash = 29418316)
     public Channel(Long id, String title, String description, String imageUrl,
-            String imageLink, String link, String atomLink, Integer times,
-            Date lastBuildDate, Long rssVersionId, Date createAt, Date updateAt) {
+                   String imageLink, String link, String atomLink, Integer times,
+                   Date lastBuildDate, Long rssVersionId, Date createAt, Date updateAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -190,5 +190,5 @@ public class Channel {
         this.updateAt = updateAt;
     }
 
-    
+
 }

@@ -42,8 +42,8 @@ public class Rss2Channel {
     public List<Link> linkList;
 
 
-    @ElementList(inline = true, entry = "item", type = Item.class, required = false)
-    public List<Item> itemList;
+    @ElementList(inline = true, entry = "item", type = Rss2Item.class, required = false)
+    public List<Rss2Item> itemList;
 
     @Element(required = false)
     public String description;

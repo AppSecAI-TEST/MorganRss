@@ -7,6 +7,7 @@ import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
 
 /**
+ * 解析rss2格式xml
  * <br>创建时间：2017/7/14.
  *
  * @author morladim

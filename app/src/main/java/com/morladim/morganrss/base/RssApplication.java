@@ -27,6 +27,5 @@ public class RssApplication extends Application {
     public void onTerminate() {
         super.onTerminate();
 //        context = null;
-
     }
 }
