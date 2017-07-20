@@ -17,7 +17,7 @@ import static com.morladim.morganrss.network.Constants.COOKIE;
  *
  * @author morladim
  */
-public class HeadInterceptor implements Interceptor {
+class HeadInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request original = chain.request();

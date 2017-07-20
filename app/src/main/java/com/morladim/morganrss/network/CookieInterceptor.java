@@ -19,7 +19,7 @@ import static com.morladim.morganrss.network.Constants.COOKIE;
  *
  * @author morladim
  */
-public class CookieInterceptor implements Interceptor {
+class CookieInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
