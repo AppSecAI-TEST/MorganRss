@@ -25,7 +25,7 @@ public class Rss2Xml {
     @Element(type = Rss2Channel.class)
     public Rss2Channel channel;
 
-    @Attribute
+    @Attribute(required = false)
     public String version;
 
 }

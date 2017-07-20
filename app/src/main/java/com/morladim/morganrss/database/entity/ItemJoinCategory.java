@@ -1,17 +1,18 @@
 package com.morladim.morganrss.database.entity;
 
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
 import java.util.Date;
-import org.greenrobot.greendao.annotation.Generated;
 
 /**
- * 绑定类
+ * item绑定标签类
  * <br>创建时间：2017/7/17.
  *
  * @author morladim
  */
+@SuppressWarnings("unused")
 @Entity
 public class ItemJoinCategory {
 
@@ -73,4 +74,5 @@ public class ItemJoinCategory {
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
     }
+
 }

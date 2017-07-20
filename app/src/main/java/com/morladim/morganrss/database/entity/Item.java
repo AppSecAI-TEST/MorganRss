@@ -1,19 +1,24 @@
 package com.morladim.morganrss.database.entity;
 
+import android.text.TextUtils;
+
+import com.morladim.morganrss.database.DBUtils;
+import com.morladim.morganrss.database.dao.CategoryDao;
+import com.morladim.morganrss.database.dao.DaoSession;
+import com.morladim.morganrss.database.dao.ItemDao;
+
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.JoinEntity;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.Date;
 import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
-import com.morladim.morganrss.database.dao.DaoSession;
-import com.morladim.morganrss.database.dao.CategoryDao;
-import com.morladim.morganrss.database.dao.ItemDao;
 
 /**
+ * 信息
  * <br>创建时间：2017/7/17.
  *
  * @author morladim
@@ -30,7 +35,7 @@ public class Item {
 
     private String comments;
 
-    private String pubDate;
+    private Date pubDate;
 
     private String creator;
 
@@ -46,9 +51,18 @@ public class Item {
 
     private String commentRss;
 
+    private Long channelId;
+
     private Date createAt;
 
     private Date updateAt;
+
+    public void setPubDate(String pubDate) {
+        if (TextUtils.isEmpty(pubDate)) {
+            return;
+        }
+        this.pubDate = DBUtils.convertStringToDate(pubDate);
+    }
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -58,9 +72,9 @@ public class Item {
     @Generated(hash = 182764869)
     private transient ItemDao myDao;
 
-    @Generated(hash = 1403752572)
-    public Item(Long id, String title, String link, String comments, String pubDate, String creator, String guid,
-            String description, String content, String commentRss, Date createAt, Date updateAt) {
+    @Generated(hash = 1688916316)
+    public Item(Long id, String title, String link, String comments, Date pubDate, String creator, String guid,
+            String description, String content, String commentRss, Long channelId, Date createAt, Date updateAt) {
         this.id = id;
         this.title = title;
         this.link = link;
@@ -71,6 +85,7 @@ public class Item {
         this.description = description;
         this.content = content;
         this.commentRss = commentRss;
+        this.channelId = channelId;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
@@ -111,11 +126,11 @@ public class Item {
         this.comments = comments;
     }
 
-    public String getPubDate() {
+    public Date getPubDate() {
         return this.pubDate;
     }
 
-    public void setPubDate(String pubDate) {
+    public void setPubDate(Date pubDate) {
         this.pubDate = pubDate;
     }
 
@@ -157,6 +172,14 @@ public class Item {
 
     public void setCommentRss(String commentRss) {
         this.commentRss = commentRss;
+    }
+
+    public Long getChannelId() {
+        return this.channelId;
+    }
+
+    public void setChannelId(Long channelId) {
+        this.channelId = channelId;
     }
 
     public Date getCreateAt() {
@@ -245,4 +268,5 @@ public class Item {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getItemDao() : null;
     }
+
 }

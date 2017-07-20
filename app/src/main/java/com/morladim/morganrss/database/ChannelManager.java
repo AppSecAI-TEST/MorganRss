@@ -10,56 +10,61 @@ import com.morladim.morganrss.rss2.Rss2Channel;
 import org.greenrobot.greendao.annotation.NotNull;
 
 import java.util.Date;
-import java.util.List;
 
 /**
- * Created on 2017/7/15 下午4:10 <p>
- * by morladim.
+ * channel表service类
+ * <br>Created on 2017/7/15 下午4:10
+ *
+ * @author morladim.
  */
 
 @SuppressWarnings("WeakerAccess")
-public class ChannelManager {
+public class ChannelManager extends BaseTableManager<Channel, ChannelDao> {
 
-    public static long insert(Channel channel) {
-        return getChannelDao().insert(channel);
+    private volatile static ChannelManager channelManager;
+
+    private ChannelManager() {
+
     }
 
-    private static ChannelDao getChannelDao() {
-//        DaoMaster daoMaster = new DaoMaster(DBManager.getInstance().getWritableDatabase());
-//        DaoSession daoSession = daoMaster.newSession();
+    public static ChannelManager getInstance() {
+        if (channelManager == null) {
+            synchronized (ChannelManager.class) {
+                if (channelManager == null) {
+                    channelManager = new ChannelManager();
+                }
+            }
+        }
+        return channelManager;
+    }
+
+    @Override
+    protected ChannelDao getDao() {
         return DBManager.getDaoSession().getChannelDao();
     }
 
-    private static void deleteByKey(@NotNull Long id) {
-        getChannelDao().deleteByKey(id);
-    }
-
-    public static void update(Channel channel) {
-        getChannelDao().update(channel);
-    }
-
-    public static List<Channel> getAll(){
-        return getChannelDao().loadAll();
-    }
-
-    public static long insertOrUpdate(@NotNull Rss2Channel rss2Channel, long versionId) {
+    public long insertOrUpdate(@NotNull Rss2Channel rss2Channel, long versionId) {
         Channel channelInDB = getChannelByTitleAndLink(rss2Channel.title, getChannelLink(rss2Channel));
+
+        long channelId;
         if (channelInDB == null) {
-            return insert(convertXmlToEntity(rss2Channel, versionId));
+            channelId = insert(convertXmlToEntity(rss2Channel, versionId));
         } else {
             channelInDB.setUpdateAt(new Date());
             channelInDB.setTimes(channelInDB.getTimes() + 1);
             channelInDB.setLastBuildDate(rss2Channel.lastBuildDate);
             update(channelInDB);
-            return channelInDB.getId();
+            channelId = channelInDB.getId();
         }
+        ItemManager.getInstance().insertOrUpdateList(rss2Channel.itemList, channelId);
+        return channelId;
     }
 
-    public static Channel getChannelByTitleAndLink(String title, String link) {
-        return getChannelDao().queryBuilder().where(ChannelDao.Properties.Title.eq(title), ChannelDao.Properties.Link.eq(link)).unique();
+    public Channel getChannelByTitleAndLink(String title, String link) {
+        return getDao().queryBuilder().where(ChannelDao.Properties.Title.eq(title), ChannelDao.Properties.Link.eq(link)).unique();
     }
 
-    private static String getChannelLink(@NotNull Rss2Channel rss2Channel) {
+    private String getChannelLink(@NotNull Rss2Channel rss2Channel) {
         if (rss2Channel.linkList == null) {
             return null;
         }
@@ -71,7 +76,7 @@ public class ChannelManager {
         return null;
     }
 
-    public static Channel convertXmlToEntity(@NotNull Rss2Channel rss2Channel, long versionId) {
+    public Channel convertXmlToEntity(@NotNull Rss2Channel rss2Channel, long versionId) {
         if (TextUtils.isEmpty(rss2Channel.title) || rss2Channel.linkList == null) {
             return null;
         }

@@ -1,15 +1,17 @@
 package com.morladim.morganrss.database.entity;
 
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 
 import java.util.Date;
-import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * Created on 2017/7/15 下午12:22 <p>
  * by morladim.
  */
+@SuppressWarnings("unused")
 @Entity
 public class RssVersion {
 
@@ -87,5 +89,4 @@ public class RssVersion {
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
     }
-
 }

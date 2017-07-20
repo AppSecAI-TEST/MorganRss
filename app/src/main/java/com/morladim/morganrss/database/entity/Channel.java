@@ -6,15 +6,16 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 
-import java.text.ParseException;
 import java.util.Date;
 
-import static com.morladim.morganrss.database.DBUtils.DATE_FORMAT;
+import static com.morladim.morganrss.database.DBUtils.convertStringToDate;
 
 /**
+ * 因为要对item进行分页，所以不toMany item。
  * Created on 2017/7/15 下午12:19 <p>
  * by morladim.
  */
+@SuppressWarnings("unused")
 @Entity
 public class Channel {
 
@@ -52,46 +53,11 @@ public class Channel {
      */
     private Date updateAt;
 
-    public Channel(String title) {
-        this.title = title;
-        createAt = new Date();
-        updateAt = new Date();
-        times = 0;
-    }
-
-    @Generated(hash = 29418316)
-    public Channel(Long id, String title, String description, String imageUrl,
-                   String imageLink, String link, String atomLink, Integer times,
-                   Date lastBuildDate, Long rssVersionId, Date createAt, Date updateAt) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.imageLink = imageLink;
-        this.link = link;
-        this.atomLink = atomLink;
-        this.times = times;
-        this.lastBuildDate = lastBuildDate;
-        this.rssVersionId = rssVersionId;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-    }
-
-    @Generated(hash = 459652974)
-    public Channel() {
-    }
-
     public void setLastBuildDate(String lastBuildDate) {
         if (TextUtils.isEmpty(lastBuildDate)) {
             return;
         }
-        Date last = null;
-        try {
-            last = DATE_FORMAT.parse(lastBuildDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        this.lastBuildDate = last;
+        this.lastBuildDate = convertStringToDate(lastBuildDate);
     }
 
     public Long getId() {
@@ -190,5 +156,33 @@ public class Channel {
         this.updateAt = updateAt;
     }
 
+    public Channel(String title) {
+        this.title = title;
+        createAt = new Date();
+        updateAt = new Date();
+        times = 0;
+    }
+
+    @Generated(hash = 29418316)
+    public Channel(Long id, String title, String description, String imageUrl,
+                   String imageLink, String link, String atomLink, Integer times,
+                   Date lastBuildDate, Long rssVersionId, Date createAt, Date updateAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.imageLink = imageLink;
+        this.link = link;
+        this.atomLink = atomLink;
+        this.times = times;
+        this.lastBuildDate = lastBuildDate;
+        this.rssVersionId = rssVersionId;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
+    }
+
+    @Generated(hash = 459652974)
+    public Channel() {
+    }
 
 }

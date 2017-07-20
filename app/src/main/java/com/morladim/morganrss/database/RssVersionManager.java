@@ -9,31 +9,38 @@ import java.util.Date;
 
 /**
  * RssVersion表管理类，提供数据访问方法封装
- * Created on 2017/7/16 上午7:32 <p>
- * by morladim.
+ * <br>Created on 2017/7/16 上午7:32
+ *
+ * @author  morladim.
  */
 
 @SuppressWarnings("WeakerAccess")
-public class RssVersionManager {
+public class RssVersionManager extends BaseTableManager<RssVersion, RssVersionDao> {
 
-    public static long insert(RssVersion version) {
-        return getVersionDao().insert(version);
+    private volatile static RssVersionManager instance;
+
+    private RssVersionManager() {
+
     }
 
-    private static RssVersionDao getVersionDao() {
+    public static RssVersionManager getInstance() {
+        if (instance == null) {
+            synchronized (RssVersionManager.class) {
+                if (instance == null) {
+                    instance = new RssVersionManager();
+                }
+            }
+        }
+        return instance;
+    }
+
+    @Override
+    protected RssVersionDao getDao() {
         return DBManager.getDaoSession().getRssVersionDao();
     }
 
-    public static void deleteByKey(@NotNull Long id) {
-        getVersionDao().deleteByKey(id);
-    }
-
-    public static void update(RssVersion version) {
-        getVersionDao().update(version);
-    }
-
-    public static RssVersion getVersionByName(@NotNull String name) {
-        return getVersionDao().queryBuilder().where(RssVersionDao.Properties.Name.eq(name.trim())).unique();
+    public RssVersion getVersionByName(@NotNull String name) {
+        return getDao().queryBuilder().where(RssVersionDao.Properties.Name.eq(name.trim())).unique();
     }
 
     /**
@@ -42,7 +49,7 @@ public class RssVersionManager {
      * @param versionName rss版本名
      * @return 插入行号
      */
-    public static long insertOrUpdate(@NotNull String versionName) {
+    public long insertOrUpdate(@NotNull String versionName) {
         RssVersion versionInDB = getVersionByName(versionName);
         if (versionInDB == null) {
             return insert(new RssVersion(versionName));

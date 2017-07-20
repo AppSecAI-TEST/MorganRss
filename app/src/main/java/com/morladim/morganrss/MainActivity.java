@@ -1,8 +1,6 @@
 package com.morladim.morganrss;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -14,29 +12,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.morladim.morganrss.base.RssApplication;
+import com.morladim.morganrss.database.CategoryManager;
 import com.morladim.morganrss.database.ChannelManager;
+import com.morladim.morganrss.database.ItemManager;
 import com.morladim.morganrss.database.RssVersionManager;
 import com.morladim.morganrss.database.entity.Channel;
-import com.morladim.morganrss.main.RssFeed;
-import com.morladim.morganrss.main.RssHandler;
 import com.morladim.morganrss.main.RssSource;
 import com.morladim.morganrss.rss2.Rss2Xml;
 
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -49,19 +39,12 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-//import io.reactivex.android.schedulers.AndroidSchedulers;
-//import io.reactivex.annotations.NonNull;
-//import io.reactivex.android.schedulers.AndroidSchedulers;
-//import io.reactivex.functions.Consumer;
-//import rx.android.schedulers.AndroidSchedulers;
-//import rx.schedulers.Schedulers;
-
 //http://blog.csdn.net/qq_37149313/article/details/70264656
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    MHandler handler = new MHandler();
+//    MHandler handler = new MHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        List<Channel> list = ChannelManager.getAll();
+        List<Channel> list = ChannelManager.getInstance().getAll();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -100,7 +83,7 @@ public class MainActivity extends AppCompatActivity
 //                handler.sendEmptyMessage(1);
 //            }
 //        }).start();
-
+// TODO: 2017/7/19 需要加入访问网络前网络状态的判断
         NewsApi api = createByXML("http://www.baidu.com", NewsApi.class);
         api.getXml()
 //        api.getXml("https://www.zhihu.com/rss")
@@ -113,14 +96,19 @@ public class MainActivity extends AppCompatActivity
 
                         String version = rss2Xml.version;
                         if (version != null) {
-                            long versionId = RssVersionManager.insertOrUpdate(version);
+                            long versionId = RssVersionManager.getInstance().insertOrUpdate(version);
                             System.out.println("versionId " + versionId);
 //                            Channel channel = ChannelManager. rss2Xml.channel;
-                            long channelId = ChannelManager.insertOrUpdate(rss2Xml.channel, versionId);
+                            long channelId = ChannelManager.getInstance().insertOrUpdate(rss2Xml.channel, versionId);
 
                             System.out.println("channelId =" + channelId);
-                            List<Channel> list = ChannelManager.getAll();
+                            List<Channel> list = ChannelManager.getInstance().getAll();
 
+                            System.out.println(ItemManager.getInstance().getAll());
+                            System.out.println(ItemManager.getInstance().getAll().size());
+                            System.out.println(ItemManager.getInstance().getAll().get(0).getDescription());
+                            System.out.println(ItemManager.getInstance().getAll().get(0).getCategoryList());
+                            CategoryManager.getInstance().getAll();
                         }
 
 
@@ -137,6 +125,7 @@ public class MainActivity extends AppCompatActivity
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
+                        Toast.makeText(RssApplication.getContext(), throwable.getMessage(), Toast.LENGTH_LONG).show();
                         System.out.println(throwable);
                     }
                 });
@@ -183,63 +172,63 @@ public class MainActivity extends AppCompatActivity
         return retrofit.create(service);
     }
 
-    RssFeed rssFeed;
+//    RssFeed rssFeed;
 
-    private class MHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            System.out.println("---------------------");
-            System.out.println(rssFeed.getAllItems());
-            System.out.println("---------------------");
-        }
-    }
+//    private class MHandler extends Handler {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            System.out.println("---------------------");
+//            System.out.println(rssFeed.getAllItems());
+//            System.out.println("---------------------");
+//        }
+//    }
 
-    private RssFeed getFeed(String urlString) {
+//    private RssFeed getFeed(String urlString) {
+////        try {
 //        try {
-        try {
-            URL url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        SAXParserFactory factory = SAXParserFactory.newInstance();  // 构建Sax解析工厂
-        SAXParser parser = null; // 使用Sax解析工厂构建Sax解析器
-        try {
-            parser = factory.newSAXParser();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        }
-//        try {
-//            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
-//        } catch (SAXNotRecognizedException e) {
-//            e.printStackTrace();
-//        } catch (SAXNotSupportedException e) {
+//            URL url = new URL(urlString);
+//        } catch (MalformedURLException e) {
 //            e.printStackTrace();
 //        }
-
-//            SAXParser parser = factory.newSAXParser(); // 使用Sax解析工厂构建Sax解析器
-//            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
-//            Charset charset = Charset.forName("UTF-8");
-//            XMLReader xmlreader = parser.getXMLReader();   // 使用Sax解析器构建xml Reader
-
-        RssHandler rssHandler = new RssHandler(); // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
-//            rssHandler.
-//            xmlreader.setContentHandler(rssHandler);     // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
-
-
-        InputSource is = new InputSource();      // 使用url打开流,并将流作为xml Reader的输入源并解析
-//            is.setEncoding("GB2312");
-//            is.setEncoding("gbk");
-        is.setEncoding("UTF-8");
-        is.setCharacterStream(new StringReader(urlString));
-        try {
-            parser.parse(is, rssHandler);
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        SAXParserFactory factory = SAXParserFactory.newInstance();  // 构建Sax解析工厂
+//        SAXParser parser = null; // 使用Sax解析工厂构建Sax解析器
+//        try {
+//            parser = factory.newSAXParser();
+//        } catch (ParserConfigurationException e) {
+//            e.printStackTrace();
+//        } catch (SAXException e) {
+//            e.printStackTrace();
+//        }
+////        try {
+////            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
+////        } catch (SAXNotRecognizedException e) {
+////            e.printStackTrace();
+////        } catch (SAXNotSupportedException e) {
+////            e.printStackTrace();
+////        }
+//
+////            SAXParser parser = factory.newSAXParser(); // 使用Sax解析工厂构建Sax解析器
+////            parser.setProperty(OutputKeys.ENCODING,"UTF-8");
+////            Charset charset = Charset.forName("UTF-8");
+////            XMLReader xmlreader = parser.getXMLReader();   // 使用Sax解析器构建xml Reader
+//
+//        RssHandler rssHandler = new RssHandler(); // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
+////            rssHandler.
+////            xmlreader.setContentHandler(rssHandler);     // 构建自定义的RSSHandler作为xml Reader的处理器（或代理）
+//
+//
+//        InputSource is = new InputSource();      // 使用url打开流,并将流作为xml Reader的输入源并解析
+////            is.setEncoding("GB2312");
+////            is.setEncoding("gbk");
+//        is.setEncoding("UTF-8");
+//        is.setCharacterStream(new StringReader(urlString));
+//        try {
+//            parser.parse(is, rssHandler);
+//        } catch (SAXException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
 
 //            xmlreader.parse(is);
@@ -249,12 +238,12 @@ public class MainActivity extends AppCompatActivity
 //            InputStreamReader isr = new InputStreamReader(inputStream,"utf-8");
 
 
-        return rssHandler.getFeed();     // 将解析结果作为 RSSFeed 对象返回
+//        return rssHandler.getFeed();     // 将解析结果作为 RSSFeed 对象返回
 //        } catch (Exception ee) {
 //            ee.printStackTrace();
 //            return null;
 //        }
-    }
+//    }
 
     @Override
     public void onBackPressed() {

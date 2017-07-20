@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- snake bar -->
+    <color name="snake_bar_bg_info">#BFEFFF</color>
+    <color name="snake_bar_text_info">#4D4D4D</color>
+    <color name="snake_bar_bg_warn">#DAA520</color>
+    <color name="snake_bar_text_warn">#4D4D4D</color>
+    <color name="snake_bar_bg_error">#EE3B3B</color>
+    <color name="snake_bar_text_error">#FCFCFC</color>
+    <color name="snake_bar_bg_success">#388E3C</color>
+    <color name="snake_bar_text_success">#FCFCFC</color>
+
+
+</resources>

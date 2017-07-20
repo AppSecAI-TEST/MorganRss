@@ -16,6 +16,7 @@ import java.util.List;
 @Root(name = "item", strict = false)
 public class Rss2Item {
 
+    @Element
     public String title;
 
     @Element(required = false)
