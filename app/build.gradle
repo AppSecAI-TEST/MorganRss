@@ -54,6 +54,9 @@ dependencies {
         exclude group: 'stax', module: 'stax-api'
         exclude group: 'stax', module: 'stax'
     }
+    compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+
     compile 'org.greenrobot:greendao:3.2.2'
 
+    compile project(path: ':morganlibrary')
 }

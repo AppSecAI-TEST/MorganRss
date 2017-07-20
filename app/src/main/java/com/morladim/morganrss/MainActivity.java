@@ -12,32 +12,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-import com.morladim.morganrss.base.RssApplication;
-import com.morladim.morganrss.database.CategoryManager;
 import com.morladim.morganrss.database.ChannelManager;
-import com.morladim.morganrss.database.ItemManager;
-import com.morladim.morganrss.database.RssVersionManager;
 import com.morladim.morganrss.database.entity.Channel;
+import com.morladim.morganrss.database.entity.Item;
 import com.morladim.morganrss.main.RssSource;
-import com.morladim.morganrss.rss2.Rss2Xml;
-
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
+import com.morladim.morganrss.network.ErrorConsumer;
+import com.morladim.morganrss.network.NewsProvider;
 
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 //http://blog.csdn.net/qq_37149313/article/details/70264656
 
@@ -84,93 +70,118 @@ public class MainActivity extends AppCompatActivity
 //            }
 //        }).start();
 // TODO: 2017/7/19 需要加入访问网络前网络状态的判断
-        NewsApi api = createByXML("http://www.baidu.com", NewsApi.class);
-        api.getXml()
-//        api.getXml("https://www.zhihu.com/rss")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+//        NewsApi api = createByXML("http://www.baidu.com", NewsApi.class);
+//        api.getXml()
+////        api.getXml("https://www.zhihu.com/rss")
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//
+//                .subscribe(new Consumer<Rss2Xml>() {
+//                    @Override
+//                    public void accept(@io.reactivex.annotations.NonNull Rss2Xml rss2Xml) throws Exception {
+//
+//                        String version = rss2Xml.version;
+//                        if (version != null) {
+//                            long versionId = RssVersionManager.getInstance().insertOrUpdate(version);
+//                            System.out.println("versionId " + versionId);
+////                            Channel channel = ChannelManager. rss2Xml.channel;
+//                            long channelId = ChannelManager.getInstance().insertOrUpdate(rss2Xml.channel, versionId);
+//
+//                            System.out.println("channelId =" + channelId);
+//                            List<Channel> list = ChannelManager.getInstance().getAll();
+//
+//                            System.out.println(ItemManager.getInstance().getAll());
+//                            System.out.println(ItemManager.getInstance().getAll().size());
+//                            System.out.println(ItemManager.getInstance().getAll().get(0).getDescription());
+//                            System.out.println(ItemManager.getInstance().getAll().get(0).getCategoryList());
+//                            CategoryManager.getInstance().getAll();
+//                        }
+//
+//
+//                        System.out.println("ddddddd");
+//                        System.out.println(rss2Xml.channel.title);
+//                        System.out.println(rss2Xml.channel.image.link);
+////                        System.out.println(rss2Xml.channel.atomLink);
+////                        System.out.println(rss2Xml.channel.link);
+////                        System.out.println(rss2Xml.channel.atomLink.href);
+////                        System.out.println(rss2Xml.channel.atomLink.href);
+//                        System.out.println("ddddddd");
+//
+//                        SnackBarHolder.SUCCESS.getNew((findViewById(R.id.content_main))).show();
+//                    }
+//                }, new Consumer<Throwable>() {
+//                    @Override
+//                    public void accept(@NonNull Throwable throwable) throws Exception {
+//                        Toast.makeText(RssApplication.getContext(), throwable.getMessage(), Toast.LENGTH_LONG).show();
+//                        System.out.println(throwable);
+//                    }
+//                });
 
-                .subscribe(new Consumer<Rss2Xml>() {
-                    @Override
-                    public void accept(@io.reactivex.annotations.NonNull Rss2Xml rss2Xml) throws Exception {
-
-                        String version = rss2Xml.version;
-                        if (version != null) {
-                            long versionId = RssVersionManager.getInstance().insertOrUpdate(version);
-                            System.out.println("versionId " + versionId);
-//                            Channel channel = ChannelManager. rss2Xml.channel;
-                            long channelId = ChannelManager.getInstance().insertOrUpdate(rss2Xml.channel, versionId);
-
-                            System.out.println("channelId =" + channelId);
-                            List<Channel> list = ChannelManager.getInstance().getAll();
-
-                            System.out.println(ItemManager.getInstance().getAll());
-                            System.out.println(ItemManager.getInstance().getAll().size());
-                            System.out.println(ItemManager.getInstance().getAll().get(0).getDescription());
-                            System.out.println(ItemManager.getInstance().getAll().get(0).getCategoryList());
-                            CategoryManager.getInstance().getAll();
-                        }
-
-
-                        System.out.println("ddddddd");
-                        System.out.println(rss2Xml.channel.title);
-                        System.out.println(rss2Xml.channel.image.link);
-//                        System.out.println(rss2Xml.channel.atomLink);
-//                        System.out.println(rss2Xml.channel.link);
-//                        System.out.println(rss2Xml.channel.atomLink.href);
-//                        System.out.println(rss2Xml.channel.atomLink.href);
-                        System.out.println("ddddddd");
-
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-                        Toast.makeText(RssApplication.getContext(), throwable.getMessage(), Toast.LENGTH_LONG).show();
-                        System.out.println(throwable);
-                    }
-                });
-
+        NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
+            @Override
+            public void accept(@NonNull List<Item> items) throws Exception {
+                System.out.println(items.size());
+            }
+        }, new ErrorConsumer(findViewById(R.id.content_main)), 0, 10);
+//        NewsProvider.getXml("", new Observer<List<Item>>() {
+//            @Override
+//            public void onSubscribe(@NonNull Disposable d) {
+//
+//            }
+//
+//            @Override
+//            public void onNext(@NonNull List<Item> items) {
+//
+//            }
+//
+//            @Override
+//            public void onError(@NonNull Throwable e) {
+//
+//            }
+//
+//            @Override
+//            public void onComplete() {
+//
+//            }
+//        },0,10);
 
     }
 
 //    AndroidSchedulers
 
-    private static final int CONNECT_TIME_OUT = 5;
-    private static final int READ_TIME_OUT = 5;
-    private static final int WRITE_TIME_OUT = 5;
 
-    private OkHttpClient getClient() {
-        OkHttpClient client =
-                new OkHttpClient.Builder()
-                        .connectTimeout(CONNECT_TIME_OUT, SECONDS)
-                        .readTimeout(READ_TIME_OUT, SECONDS)
-                        .writeTimeout(WRITE_TIME_OUT, SECONDS)
-//                        .cache(getCache())
-                        .retryOnConnectionFailure(true)
-//                        .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-//                        .addInterceptor(new HeadInterceptor())
-//                        .addInterceptor(new CookieInterceptor())
-//                        .addInterceptor(new CacheInterceptor())
-//                        .addInterceptor(new LoginInterceptor())
-                        .build();
-        return client;
-    }
+//    private OkHttpClient getClient() {
+//        OkHttpClient client =
+//                new OkHttpClient.Builder()
+//                        .connectTimeout(CONNECT_TIME_OUT, SECONDS)
+//                        .readTimeout(READ_TIME_OUT, SECONDS)
+//                        .writeTimeout(WRITE_TIME_OUT, SECONDS)
+////                        .cache(getCache())
+//                        .retryOnConnectionFailure(true)
+////                        .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+////                        .addInterceptor(new HeadInterceptor())
+////                        .addInterceptor(new CookieInterceptor())
+////                        .addInterceptor(new CacheInterceptor())
+////                        .addInterceptor(new LoginInterceptor())
+//                        .build();
+//        return client;
+//    }
 
-    public <T> T createByXML(String baseUrl, Class<T> service) {
+//    public <T> T createByXML(String baseUrl, Class<T> service) {
 
 
-        AnnotationStrategy annotationStrategy = new AnnotationStrategy();
-//        Format format = new Format(0, null, new HyphenStyle(), Verbosity.HIGH);
-        Persister persister = new Persister(annotationStrategy);
+//        AnnotationStrategy annotationStrategy = new AnnotationStrategy();
+////        Format format = new Format(0, null, new HyphenStyle(), Verbosity.HIGH);
+//        Persister persister = new Persister(annotationStrategy);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(getClient())
-                .addConverterFactory(SimpleXmlConverterFactory.create(persister))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-        return retrofit.create(service);
-    }
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(baseUrl)
+//                .client(getClient())
+//                .addConverterFactory(SimpleXmlConverterFactory.create(persister))
+//                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+//                .build();
+//        return retrofit.create(service);
+//    }
 
 //    RssFeed rssFeed;
 

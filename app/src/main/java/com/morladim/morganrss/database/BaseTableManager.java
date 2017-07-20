@@ -2,6 +2,7 @@ package com.morladim.morganrss.database;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.annotation.NotNull;
+import org.greenrobot.greendao.annotation.Property;
 
 import java.util.List;
 
@@ -35,4 +36,5 @@ public abstract class BaseTableManager<E, DAO extends AbstractDao<E, Long>> {
     public void insertInTx(List<E> entityList) {
         getDao().insertInTx(entityList);
     }
+
 }

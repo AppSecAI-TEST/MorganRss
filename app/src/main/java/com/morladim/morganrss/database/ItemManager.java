@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author morladim
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ItemManager extends BaseTableManager<Item, ItemDao> {
 
     private volatile static ItemManager instance;
@@ -104,6 +104,14 @@ public class ItemManager extends BaseTableManager<Item, ItemDao> {
         item.setComments(rss2Item.encoded);
         item.setUpdateAt(new Date());
         item.resetCategoryList();
+    }
+
+    public List<Item> getList(int offset, int limit) {
+        return getDao().queryBuilder().offset(offset).limit(limit).orderDesc(ItemDao.Properties.Id).list();
+    }
+
+    public List<Item> getList(long channelId, int offset, int limit) {
+        return getDao().queryBuilder().where(ItemDao.Properties.ChannelId.eq(channelId)).offset(offset).limit(limit).orderDesc(ItemDao.Properties.Id).list();
     }
 }
 

@@ -2,6 +2,8 @@ package com.morladim.morganrss.base;
 
 import android.app.Application;
 
+import com.morladim.morganlibrary.SharedUtils;
+
 /**
  * <br>创建时间：2017/7/13.
  *
@@ -15,7 +17,10 @@ public class RssApplication extends Application {
         return context;
     }
 
-    public RssApplication() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        SharedUtils.init(this);
         context = this;
     }
 
