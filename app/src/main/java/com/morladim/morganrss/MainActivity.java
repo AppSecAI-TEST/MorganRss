@@ -8,6 +8,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import com.morladim.morganrss.main.RssSource;
 import com.morladim.morganrss.network.ErrorConsumer;
 import com.morladim.morganrss.network.NewsProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
@@ -30,7 +33,11 @@ import io.reactivex.functions.Consumer;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-//    MHandler handler = new MHandler();
+    //    MHandler handler = new MHandler();
+    private RecyclerView recyclerView;
+
+    private List<Item> data;
+    private Rss2Adapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 //        SAXParser
+
+        recyclerView = (RecyclerView) findViewById(R.id.single_recycler);
+        data = new ArrayList<>();
+        adapter = new Rss2Adapter(data);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         final RssSource source = new RssSource("知乎", "http://zhihu.com/rss");
         System.out.println("==================");
 //        new Thread(new Runnable() {
@@ -121,6 +134,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void accept(@NonNull List<Item> items) throws Exception {
                 System.out.println(items.size());
+
+                data.addAll(items);
+                adapter.notifyDataSetChanged();
             }
         }, new ErrorConsumer(findViewById(R.id.content_main)), 0, 10);
 //        NewsProvider.getXml("", new Observer<List<Item>>() {

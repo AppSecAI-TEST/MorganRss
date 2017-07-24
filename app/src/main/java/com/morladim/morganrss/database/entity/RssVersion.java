@@ -3,7 +3,6 @@ package com.morladim.morganrss.database.entity;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Keep;
 
 import java.util.Date;
 
@@ -38,7 +37,7 @@ public class RssVersion {
 
     @Generated(hash = 623294046)
     public RssVersion(Long id, String name, Integer times, Date createAt,
-            Date updateAt) {
+                      Date updateAt) {
         this.id = id;
         this.name = name;
         this.times = times;

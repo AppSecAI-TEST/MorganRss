@@ -12,6 +12,7 @@ import java.util.List;
  *
  * @author morladim
  */
+@SuppressWarnings("WeakerAccess")
 public class CategoryManager extends BaseTableManager<Category, CategoryDao> {
 
     private volatile static CategoryManager instance;

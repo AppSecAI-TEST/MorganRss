@@ -23,6 +23,7 @@ import java.util.List;
  *
  * @author morladim
  */
+@SuppressWarnings("unused")
 @Entity
 public class Item {
 

@@ -2,7 +2,6 @@ package com.morladim.morganrss.database;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Property;
 
 import java.util.List;
 
