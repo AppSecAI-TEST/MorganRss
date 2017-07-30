@@ -22,11 +22,13 @@ import com.morladim.morganrss.main.RssSource;
 import com.morladim.morganrss.network.ErrorConsumer;
 import com.morladim.morganrss.network.NewsProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
+import me.dkzwm.smoothrefreshlayout.RefreshingListenerAdapter;
+import me.dkzwm.smoothrefreshlayout.SmoothRefreshLayout;
+import me.dkzwm.smoothrefreshlayout.extra.header.ClassicHeader;
 
 //http://blog.csdn.net/qq_37149313/article/details/70264656
 
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity
     //    MHandler handler = new MHandler();
     private RecyclerView recyclerView;
 
-    private List<Item> data;
+    //    private List<Item> data;
     private Rss2Adapter adapter;
 
     @Override
@@ -67,9 +69,44 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 //        SAXParser
 
+        final SmoothRefreshLayout refreshLayout = (SmoothRefreshLayout) findViewById(R.id.smooth);
+        refreshLayout.setMode(SmoothRefreshLayout.MODE_BOTH);
+        refreshLayout.setHeaderView(new ClassicHeader(this));
+        refreshLayout.setOnRefreshListener(new RefreshingListenerAdapter() {
+            @Override
+            public void onRefreshBegin(boolean isRefresh) {
+                if (!isRefresh) {
+                    NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
+                        @Override
+                        public void accept(@NonNull List<Item> items) throws Exception {
+                            adapter.refresh(items);
+                            refreshLayout.refreshComplete();
+                        }
+                    }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
+                } else {
+                    NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
+                        @Override
+                        public void accept(@NonNull List<Item> items) throws Exception {
+                            adapter.loadMore(items);
+                            refreshLayout.refreshComplete();
+                        }
+                    }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
+                }
+            }
+        });
+//        refreshLayout.setOnLoadMoreScrollCallback(new SmoothRefreshLayout.OnLoadMoreScrollCallback() {
+//            @Override
+//            public boolean onScroll(View content, float deltaY) {
+//                return false;
+//            }
+//        });
+        refreshLayout.setEnableScrollToBottomAutoLoadMore(true);
+        refreshLayout.autoRefresh(false);
+//        refreshLayout.setONLoad
         recyclerView = (RecyclerView) findViewById(R.id.single_recycler);
-        data = new ArrayList<>();
-        adapter = new Rss2Adapter(data);
+//        data = new ArrayList<>();
+        adapter = new Rss2Adapter();
+//        adapter = new Rss2Adapter(data);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         final RssSource source = new RssSource("知乎", "http://zhihu.com/rss");
@@ -134,11 +171,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void accept(@NonNull List<Item> items) throws Exception {
                 System.out.println(items.size());
-
-                data.addAll(items);
-                adapter.notifyDataSetChanged();
+                adapter.refresh(items);
+//                data.addAll(items);
+//                adapter.notifyDataSetChanged();
             }
-        }, new ErrorConsumer(findViewById(R.id.content_main)), 0, 10);
+        }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
 //        NewsProvider.getXml("", new Observer<List<Item>>() {
 //            @Override
 //            public void onSubscribe(@NonNull Disposable d) {

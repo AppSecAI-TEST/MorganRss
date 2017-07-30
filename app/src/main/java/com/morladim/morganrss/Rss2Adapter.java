@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.morladim.morganrss.database.entity.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,12 +18,15 @@ import java.util.List;
  */
 public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder> {
 
+    private volatile int offset;
+
+    private int limit = 10;
+
     private List<Item> data;
 
-    public Rss2Adapter(List<Item> items) {
-        data = items;
+    public Rss2Adapter() {
+        data = new ArrayList<>();
     }
-
 
     @Override
     public Rss2ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -41,6 +45,35 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public void refresh(List<Item> items) {
+        offset = 0;
+        data.clear();
+        data.addAll(items);
+        this.notifyDataSetChanged();
+    }
+
+    public void loadMore(List<Item> items) {
+        data.addAll(items);
+        this.notifyDataSetChanged();
+        offset += limit;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 
     public static class Rss2ViewHolder extends RecyclerView.ViewHolder {
