@@ -24,6 +24,8 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
 
     private List<Item> data;
 
+    private boolean hasMore = true;
+
     public Rss2Adapter() {
         data = new ArrayList<>();
     }
@@ -57,7 +59,7 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
     public void loadMore(List<Item> items) {
         data.addAll(items);
         this.notifyDataSetChanged();
-        offset += limit;
+//        offset += limit;
     }
 
     public int getOffset() {
@@ -76,6 +78,14 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
         this.limit = limit;
     }
 
+    public boolean isHasMore() {
+        return hasMore;
+    }
+
+    public void setHasMore(boolean hasMore) {
+        this.hasMore = hasMore;
+    }
+
     public static class Rss2ViewHolder extends RecyclerView.ViewHolder {
 
         public TextView tv1, tv2;
@@ -83,8 +93,8 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
 
         public Rss2ViewHolder(View itemView) {
             super(itemView);
-            tv1 = itemView.findViewById(R.id.tx1);
-            tv2 = itemView.findViewById(R.id.tx2);
+            tv1 = itemView.findViewById(R.id.title);
+            tv2 = itemView.findViewById(R.id.description);
         }
     }
 }

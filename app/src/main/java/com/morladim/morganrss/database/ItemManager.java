@@ -107,11 +107,11 @@ public class ItemManager extends BaseTableManager<Item, ItemDao> {
     }
 
     public List<Item> getList(int offset, int limit) {
-        return getDao().queryBuilder().offset(offset).limit(limit).orderDesc(ItemDao.Properties.Id).list();
+        return getDao().queryBuilder().offset(offset).limit(limit).orderDesc(ItemDao.Properties.PubDate).list();
     }
 
     public List<Item> getList(long channelId, int offset, int limit) {
-        return getDao().queryBuilder().where(ItemDao.Properties.ChannelId.eq(channelId)).offset(offset).limit(limit).orderDesc(ItemDao.Properties.Id).list();
+        return getDao().queryBuilder().where(ItemDao.Properties.ChannelId.eq(channelId)).offset(offset).limit(limit).orderDesc(ItemDao.Properties.PubDate).list();
     }
 }
 

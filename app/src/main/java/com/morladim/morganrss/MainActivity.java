@@ -80,7 +80,15 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void accept(@NonNull List<Item> items) throws Exception {
                             adapter.refresh(items);
+                            if (items != null && items.size() == adapter.getLimit()) {
+//                                adapter.setHasMore(true);
+                                adapter.setOffset(adapter.getLimit());
+                            } else {
+//                                adapter.setHasMore(false);
+                                refreshLayout.setDisableLoadMore(true);
+                            }
                             refreshLayout.refreshComplete();
+
                         }
                     }, new ErrorConsumer(findViewById(R.id.content_main)), 0, adapter.getLimit());
                 } else {
@@ -88,6 +96,13 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void accept(@NonNull List<Item> items) throws Exception {
                             adapter.loadMore(items);
+                            if (items != null && items.size() == adapter.getLimit()) {
+//                                adapter.setHasMore(true);
+                                adapter.setOffset(adapter.getOffset() + adapter.getLimit());
+                            } else {
+//                                adapter.setHasMore(false);
+                                refreshLayout.setDisableLoadMore(true);
+                            }
                             refreshLayout.refreshComplete();
                         }
                     }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
@@ -167,15 +182,15 @@ public class MainActivity extends AppCompatActivity
 //                    }
 //                });
 
-        NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
-            @Override
-            public void accept(@NonNull List<Item> items) throws Exception {
-                System.out.println(items.size());
-                adapter.refresh(items);
-//                data.addAll(items);
-//                adapter.notifyDataSetChanged();
-            }
-        }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
+//        NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
+//            @Override
+//            public void accept(@NonNull List<Item> items) throws Exception {
+//                System.out.println(items.size());
+//                adapter.refresh(items);
+////                data.addAll(items);
+////                adapter.notifyDataSetChanged();
+//            }
+//        }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
 //        NewsProvider.getXml("", new Observer<List<Item>>() {
 //            @Override
 //            public void onSubscribe(@NonNull Disposable d) {
