@@ -75,14 +75,14 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setOnRefreshListener(new RefreshingListenerAdapter() {
             @Override
             public void onRefreshBegin(boolean isRefresh) {
-                if (!isRefresh) {
+                if (isRefresh) {
                     NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
                         @Override
                         public void accept(@NonNull List<Item> items) throws Exception {
                             adapter.refresh(items);
                             refreshLayout.refreshComplete();
                         }
-                    }, new ErrorConsumer(findViewById(R.id.content_main)), adapter.getOffset(), adapter.getLimit());
+                    }, new ErrorConsumer(findViewById(R.id.content_main)), 0, adapter.getLimit());
                 } else {
                     NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
                         @Override
