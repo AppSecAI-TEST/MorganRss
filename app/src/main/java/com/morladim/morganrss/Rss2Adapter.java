@@ -1,12 +1,21 @@
 package com.morladim.morganrss;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.morladim.morganlibrary.DateUtils;
+import com.morladim.morganrss.base.RssApplication;
 import com.morladim.morganrss.database.entity.Item;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +25,7 @@ import java.util.List;
  *
  * @author morladim
  */
-public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder> {
+public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private volatile int offset;
 
@@ -30,18 +39,134 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
         data = new ArrayList<>();
     }
 
+    /**
+     * 图片在侧边
+     */
+    public static final int DEFAULT_ITEM_VIEW_TYPE = 0;
+
+    /**
+     * 图片在上边
+     */
+    public static final int IMAGE_TOP_VIEW_TYPE = 1;
+
+    /**
+     * 没有图片
+     */
+    public static final int NO_IMAGE_VIEW_TYPE = 2;
+
     @Override
-    public Rss2ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
-        return new Rss2ViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        int layout;
+        switch (viewType) {
+            case IMAGE_TOP_VIEW_TYPE:
+                layout = R.layout.vertical_item;
+                break;
+            case NO_IMAGE_VIEW_TYPE:
+                layout = R.layout.no_image_item;
+                break;
+            default:
+                layout = R.layout.item;
+                break;
+        }
+        View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+        return new Rss2VerticalViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(Rss2ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder != null) {
-            holder.tv1.setText(data.get(position).getTitle());
-            holder.tv2.setText(data.get(position).getDescription());
+            Rss2VerticalViewHolder rss2VerticalViewHolder = (Rss2VerticalViewHolder) holder;
+            Item item = data.get(position);
+            rss2VerticalViewHolder.title.setText(item.getTitle());
+//            Spanned spanned = Html.fromHtml(item.getDescription(), imageGetter, null);
+            String description = item.getDescription().replaceAll("<img.+?>", "");
+            while (description.startsWith("\n")) {
+                description = description.substring(2);
+            }
+
+            Spanned spanned = Html.fromHtml(description, imageGetter, null);
+
+//            if (spanned instanceof SpannableStringBuilder) {
+//                ImageSpan[] imageSpans = spanned.getSpans(0, spanned.length(), ImageSpan.class);
+//                for (ImageSpan imageSpan : imageSpans) {
+////                    int start = spanned.getSpanStart(imageSpan);
+////                    int end = spanned.getSpanEnd(imageSpan);
+////                    Drawable d = imageSpan.getDrawable();
+//////                    ImageSpan newImageSpan = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
+////                    ((SpannableStringBuilder) spanned).setSpan(null, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+//                    ((SpannableStringBuilder) spanned).removeSpan(imageSpan);
+//                    System.out.println("cccc " + spanned);
+//
+//                }
+//            }
+//            rss2VerticalViewHolder.description.setText(spanned);
+            rss2VerticalViewHolder.description.setText(spanned);
+            rss2VerticalViewHolder.creator.setText(item.getCreator());
+            rss2VerticalViewHolder.date.setText(DateUtils.getTimeToNow(item.getPubDate()));
+            Picasso.with(RssApplication.getContext()).load(item.getImageUrl()).config(Bitmap.Config.RGB_565).into(rss2VerticalViewHolder.imageView);
         }
+    }
+
+//    public class StickerSpan extends ImageSpan {
+//
+//        public StickerSpan(Drawable b, int verticalAlignment) {
+//            super(b, verticalAlignment);
+//
+//        }
+//
+//        @Override
+//        public void draw(Canvas canvas, CharSequence text,
+//                         int start, int end, float x,
+//                         int top, int y, int bottom, Paint paint) {
+//            Drawable b = getDrawable();
+//            canvas.save();
+//            int transY = bottom - b.getBounds().bottom - Utils.dip2px(WApplication.cFontLineSpacingExtra);
+//            if (mVerticalAlignment == ALIGN_BASELINE) {
+//                int textLength = text.length();
+//                for (int i = 0; i < textLength; i++) {
+//                    if (Character.isLetterOrDigit(text.charAt(i))) {
+//                        transY -= paint.getFontMetricsInt().descent;
+//                        break;
+//                    }
+//                }
+//            }
+//            canvas.translate(x, transY);
+//            b.draw(canvas);
+//            canvas.restore();
+//        }
+//    }
+
+    final Html.ImageGetter imageGetter = new Html.ImageGetter() {
+
+        @Override
+        public Drawable getDrawable(String s) {
+//            return null;
+            return new BitmapDrawable();
+        }
+    };
+
+    @Override
+    public int getItemViewType(int position) {
+        Item item = data.get(position);
+        if (item.getImageUrl() != null) {
+            try {
+                if (item.getImageWidth() == null || item.getImageHeight() == null) {
+                    return IMAGE_TOP_VIEW_TYPE;
+                }
+                int width = Integer.parseInt(item.getImageWidth());
+                int height = Integer.parseInt(item.getImageHeight());
+                System.out.println("width " + width);
+                System.out.println("height " + height);
+                System.out.println("------------------");
+                if (width > height * 1.25f) {
+                    return IMAGE_TOP_VIEW_TYPE;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return DEFAULT_ITEM_VIEW_TYPE;
+        }
+        return NO_IMAGE_VIEW_TYPE;
     }
 
     @Override
@@ -59,7 +184,6 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
     public void loadMore(List<Item> items) {
         data.addAll(items);
         this.notifyDataSetChanged();
-//        offset += limit;
     }
 
     public int getOffset() {
@@ -86,15 +210,33 @@ public class Rss2Adapter extends RecyclerView.Adapter<Rss2Adapter.Rss2ViewHolder
         this.hasMore = hasMore;
     }
 
-    public static class Rss2ViewHolder extends RecyclerView.ViewHolder {
+    private static class Rss2VerticalViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView tv1, tv2;
+        TextView title, description, date, creator;
+        ImageView imageView;
 
-
-        public Rss2ViewHolder(View itemView) {
+        Rss2VerticalViewHolder(View itemView) {
             super(itemView);
-            tv1 = itemView.findViewById(R.id.title);
-            tv2 = itemView.findViewById(R.id.description);
+            title = itemView.findViewById(R.id.title);
+            description = itemView.findViewById(R.id.description);
+            imageView = itemView.findViewById(R.id.image);
+            date = itemView.findViewById(R.id.date);
+            creator = itemView.findViewById(R.id.creator);
         }
     }
+
+//    private static class Rss2HorizontalViewHolder extends RecyclerView.ViewHolder {
+//
+//        TextView title, description, date, creator;
+//        ImageView imageView;
+//
+//        Rss2HorizontalViewHolder(View itemView) {
+//            super(itemView);
+//            title = itemView.findViewById(R.id.title);
+//            description = itemView.findViewById(R.id.description);
+//            imageView = itemView.findViewById(R.id.image);
+//            date = itemView.findViewById(R.id.date);
+//            creator = itemView.findViewById(R.id.creator);
+//        }
+//    }
 }

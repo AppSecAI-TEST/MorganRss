@@ -1,11 +1,17 @@
 package com.morladim.morganrss.database;
 
+import android.util.Xml;
+
 import com.morladim.morganrss.database.dao.ItemDao;
 import com.morladim.morganrss.database.entity.Item;
 import com.morladim.morganrss.rss2.Rss2Item;
 
 import org.greenrobot.greendao.annotation.NotNull;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Date;
 import java.util.List;
 
@@ -76,13 +82,70 @@ public class ItemManager extends BaseTableManager<Item, ItemDao> {
         item.setLink(rss2Item.link);
         item.setPubDate(rss2Item.pubDate);
         item.setTitle(rss2Item.title);
+        setItemImage(item, rss2Item.encoded == null ? rss2Item.description : rss2Item.encoded);
+
         return item;
+    }
+
+    /**
+     * 获取内容中第一张图片信息
+     */
+    private void setItemImage(Item item, String content) {
+        System.out.println("abbb " + content);
+        XmlPullParser parser = Xml.newPullParser();
+        try {
+            parser.setInput(new StringReader(content));
+            int event = parser.getEventType();
+            while (!(event == XmlPullParser.END_DOCUMENT || (event == XmlPullParser.END_TAG && "img".equals(parser.getName())))) {
+                switch (event) {
+                    case XmlPullParser.START_TAG:
+                        if ("img".equals(parser.getName())) {
+                            int count = parser.getAttributeCount();
+                            String imageUrl = null, imageWidth = null, imageHeight = null, dataRawWidth = null, dataRawHeight = null;
+                            for (int i = 0; i < count; i++) {
+                                String key = parser.getAttributeName(i);
+                                if ("src".equals(key.toLowerCase())) {
+                                    imageUrl = parser.getAttributeValue(i);
+                                }
+                                if ("width".equals(key.toLowerCase())) {
+                                    imageWidth = parser.getAttributeValue(i);
+                                }
+                                if ("height".equals(key.toLowerCase())) {
+                                    imageHeight = parser.getAttributeValue(i);
+                                }
+                                if ("data-rawwidth".equals(key.toLowerCase())) {
+                                    dataRawWidth = parser.getAttributeValue(i);
+                                }
+                                if ("data-rawheight".equals(key.toLowerCase())) {
+                                    dataRawHeight = parser.getAttributeValue(i);
+                                }
+                            }
+                            item.setImageUrl(imageUrl);
+                            item.setImageWidth(imageWidth == null ? dataRawWidth : imageWidth);
+                            item.setImageHeight(imageHeight == null ? dataRawHeight : imageHeight);
+                        }
+                        break;
+                }
+                try {
+                    event = parser.next();
+                } catch (XmlPullParserException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * 获取commonList中最长的为commons
      */
     private String getCommonsFromXml(List<String> commonList) {
+        if (commonList == null) {
+            return null;
+        }
         int longestI = 0;
         int length = 0;
         int temPLength;

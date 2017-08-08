@@ -15,12 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.morladim.morganrss.base.RssApplication;
 import com.morladim.morganrss.database.ChannelManager;
 import com.morladim.morganrss.database.entity.Channel;
 import com.morladim.morganrss.database.entity.Item;
 import com.morladim.morganrss.main.RssSource;
 import com.morladim.morganrss.network.ErrorConsumer;
 import com.morladim.morganrss.network.NewsProvider;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -40,6 +42,9 @@ public class MainActivity extends AppCompatActivity
 
     //    private List<Item> data;
     private Rss2Adapter adapter;
+
+    public static final String rssUrl = "https://www.zhihu.com/rss";
+//    public static final String rssUrl = "http://www.appinn.com/feed/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +80,16 @@ public class MainActivity extends AppCompatActivity
         refreshLayout.setOnRefreshListener(new RefreshingListenerAdapter() {
             @Override
             public void onRefreshBegin(boolean isRefresh) {
+                // TODO: 2017/8/8 刷新声音
                 if (isRefresh) {
-                    NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
+                    NewsProvider.getXml(rssUrl, new Consumer<List<Item>>() {
                         @Override
                         public void accept(@NonNull List<Item> items) throws Exception {
                             adapter.refresh(items);
                             if (items != null && items.size() == adapter.getLimit()) {
 //                                adapter.setHasMore(true);
                                 adapter.setOffset(adapter.getLimit());
+                                refreshLayout.setDisableLoadMore(false);
                             } else {
 //                                adapter.setHasMore(false);
                                 refreshLayout.setDisableLoadMore(true);
@@ -92,7 +99,7 @@ public class MainActivity extends AppCompatActivity
                         }
                     }, new ErrorConsumer(findViewById(R.id.content_main)), 0, adapter.getLimit());
                 } else {
-                    NewsProvider.getXml("http://www.appinn.com/feed/", new Consumer<List<Item>>() {
+                    NewsProvider.getXml(rssUrl, new Consumer<List<Item>>() {
                         @Override
                         public void accept(@NonNull List<Item> items) throws Exception {
                             adapter.loadMore(items);
@@ -124,6 +131,19 @@ public class MainActivity extends AppCompatActivity
 //        adapter = new Rss2Adapter(data);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            Object tag = new Object();
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    Picasso.with(RssApplication.getContext()).resumeTag(tag);
+                } else {
+                    Picasso.with(RssApplication.getContext()).pauseTag(tag);
+                }
+            }
+        });
+
         final RssSource source = new RssSource("知乎", "http://zhihu.com/rss");
         System.out.println("==================");
 //        new Thread(new Runnable() {

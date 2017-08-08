@@ -50,6 +50,12 @@ public class Item {
 
     private String content;
 
+    private String imageUrl;
+
+    private String imageWidth;
+
+    private String imageHeight;
+
     private String commentRss;
 
     private Long channelId;
@@ -57,13 +63,6 @@ public class Item {
     private Date createAt;
 
     private Date updateAt;
-
-    public void setPubDate(String pubDate) {
-        if (TextUtils.isEmpty(pubDate)) {
-            return;
-        }
-        this.pubDate = DBUtils.convertStringToDate(pubDate);
-    }
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -73,9 +72,10 @@ public class Item {
     @Generated(hash = 182764869)
     private transient ItemDao myDao;
 
-    @Generated(hash = 1688916316)
+    @Generated(hash = 1989851213)
     public Item(Long id, String title, String link, String comments, Date pubDate, String creator, String guid,
-            String description, String content, String commentRss, Long channelId, Date createAt, Date updateAt) {
+            String description, String content, String imageUrl, String imageWidth, String imageHeight,
+            String commentRss, Long channelId, Date createAt, Date updateAt) {
         this.id = id;
         this.title = title;
         this.link = link;
@@ -85,6 +85,9 @@ public class Item {
         this.guid = guid;
         this.description = description;
         this.content = content;
+        this.imageUrl = imageUrl;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
         this.commentRss = commentRss;
         this.channelId = channelId;
         this.createAt = createAt;
@@ -93,6 +96,13 @@ public class Item {
 
     @Generated(hash = 1470900980)
     public Item() {
+    }
+
+    public void setPubDate(String pubDate) {
+        if (TextUtils.isEmpty(pubDate)) {
+            return;
+        }
+        this.pubDate = DBUtils.convertStringToDate(pubDate);
     }
 
     public Long getId() {
@@ -165,6 +175,30 @@ public class Item {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageWidth() {
+        return this.imageWidth;
+    }
+
+    public void setImageWidth(String imageWidth) {
+        this.imageWidth = imageWidth;
+    }
+
+    public String getImageHeight() {
+        return this.imageHeight;
+    }
+
+    public void setImageHeight(String imageHeight) {
+        this.imageHeight = imageHeight;
     }
 
     public String getCommentRss() {
