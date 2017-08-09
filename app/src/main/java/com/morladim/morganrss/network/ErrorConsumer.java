@@ -1,6 +1,7 @@
 package com.morladim.morganrss.network;
 
 import android.view.View;
+import android.widget.Toast;
 
 import com.morladim.morganlibrary.SnackBarHolder;
 import com.morladim.morganrss.R;
@@ -40,8 +41,8 @@ public class ErrorConsumer implements Consumer<Throwable> {
     @Override
     public void accept(@NonNull Throwable throwable) throws Exception {
         if (reference != null && reference.get() != null) {
+            Toast.makeText(RssApplication.getContext(), throwable.getMessage(), Toast.LENGTH_LONG).show();
             SnackBarHolder.ERROR.getNew(reference.get(), error == null ? throwable.getMessage() : error).show();
-
         }
     }
 

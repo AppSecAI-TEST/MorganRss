@@ -43,7 +43,15 @@ public class MainActivity extends AppCompatActivity
     //    private List<Item> data;
     private Rss2Adapter adapter;
 
-    public static final String rssUrl = "http://www.toodaylab.com/feed";
+    public static final String rssUrl = "http://www.ftchinese.com/rss/feed";
+//    public static final String rssUrl = "http://techcrunch.cn/feed/";
+//    public static final String rssUrl = "http://www.pocketgamer.co.uk/rss.asp";
+//    public static final String rssUrl = "https://www.gamespot.com/feeds/news/";//fan
+//    public static final String rssUrl = "http://davidkphotography.com/index.php?x=rss";
+//    public static final String rssUrl = "http://www.techlearning.com/RSS";
+//    public static final String rssUrl = "http://feeds.washingtonpost.com/rss/rss_blogpost";
+//    public static final String rssUrl = "http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml";//fan
+//    public static final String rssUrl = "http://www.toodaylab.com/feed";
 //    public static final String rssUrl = "http://www.qingniantuzhai.com/feed";
 //    public static final String rssUrl = "http://jandan.net/feed";
 //    public static final String rssUrl = "http://www.dxy.cn/bbs/rss/2.0/all.xml";
