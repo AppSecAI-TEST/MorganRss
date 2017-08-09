@@ -32,8 +32,17 @@ public class Rss2Item {
     @Element(required = false)
     public String creator;
 
+    @Element(required = false)
+    public String author;
+
     @ElementList(entry = "category", type = String.class, inline = true, required = false)
     public List<String> categoryList;
+
+    @Element(required = false, name = "focus_pic")
+    public String focusPic;
+
+    @Element(required = false)
+    public String image;
 
     @Element(required = false)
     public String guid;

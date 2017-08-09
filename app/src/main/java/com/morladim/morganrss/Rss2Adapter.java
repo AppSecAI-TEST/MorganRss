@@ -80,8 +80,10 @@ public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             rss2VerticalViewHolder.title.setText(item.getTitle());
 //            Spanned spanned = Html.fromHtml(item.getDescription(), imageGetter, null);
             String description = item.getDescription().replaceAll("<img.+?>", "");
+//            description = description.replaceAll("<(?<style>[^\\s>]+)[^>]*>(.|\\n)*?</\\k<style>>", "");
+            // TODO: 2017/8/9 适配好奇心日报
             while (description.startsWith("\n")) {
-                description = description.substring(2);
+                description = description.substring(1);
             }
 
             Spanned spanned = Html.fromHtml(description, imageGetter, null);

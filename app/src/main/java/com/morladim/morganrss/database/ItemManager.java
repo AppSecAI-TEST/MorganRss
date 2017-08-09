@@ -1,5 +1,6 @@
 package com.morladim.morganrss.database;
 
+import android.text.TextUtils;
 import android.util.Xml;
 
 import com.morladim.morganrss.database.dao.ItemDao;
@@ -8,9 +9,7 @@ import com.morladim.morganrss.rss2.Rss2Item;
 
 import org.greenrobot.greendao.annotation.NotNull;
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.Date;
 import java.util.List;
@@ -76,13 +75,13 @@ public class ItemManager extends BaseTableManager<Item, ItemDao> {
         Date date = new Date();
         item.setCreateAt(date);
         item.setUpdateAt(date);
-        item.setCreator(rss2Item.creator);
+        item.setCreator(rss2Item.creator == null ? rss2Item.author : rss2Item.creator);
         item.setDescription(rss2Item.description);
         item.setGuid(rss2Item.guid);
         item.setLink(rss2Item.link);
         item.setPubDate(rss2Item.pubDate);
         item.setTitle(rss2Item.title);
-        setItemImage(item, rss2Item.encoded == null ? rss2Item.description : rss2Item.encoded);
+        setItemImage(item, rss2Item);
 
         return item;
     }
@@ -90,53 +89,66 @@ public class ItemManager extends BaseTableManager<Item, ItemDao> {
     /**
      * 获取内容中第一张图片信息
      */
-    private void setItemImage(Item item, String content) {
-        System.out.println("abbb " + content);
+    private void setItemImage(Item item, Rss2Item rss2Item) {
+        if (hasImage(item, rss2Item)) {
+            return;
+        }
+
+        String content = rss2Item.encoded == null ? rss2Item.description : rss2Item.encoded;
         XmlPullParser parser = Xml.newPullParser();
         try {
             parser.setInput(new StringReader(content));
             int event = parser.getEventType();
             while (!(event == XmlPullParser.END_DOCUMENT || (event == XmlPullParser.END_TAG && "img".equals(parser.getName())))) {
-                switch (event) {
-                    case XmlPullParser.START_TAG:
-                        if ("img".equals(parser.getName())) {
-                            int count = parser.getAttributeCount();
-                            String imageUrl = null, imageWidth = null, imageHeight = null, dataRawWidth = null, dataRawHeight = null;
-                            for (int i = 0; i < count; i++) {
-                                String key = parser.getAttributeName(i);
-                                if ("src".equals(key.toLowerCase())) {
-                                    imageUrl = parser.getAttributeValue(i);
-                                }
-                                if ("width".equals(key.toLowerCase())) {
-                                    imageWidth = parser.getAttributeValue(i);
-                                }
-                                if ("height".equals(key.toLowerCase())) {
-                                    imageHeight = parser.getAttributeValue(i);
-                                }
-                                if ("data-rawwidth".equals(key.toLowerCase())) {
-                                    dataRawWidth = parser.getAttributeValue(i);
-                                }
-                                if ("data-rawheight".equals(key.toLowerCase())) {
-                                    dataRawHeight = parser.getAttributeValue(i);
-                                }
-                            }
-                            item.setImageUrl(imageUrl);
-                            item.setImageWidth(imageWidth == null ? dataRawWidth : imageWidth);
-                            item.setImageHeight(imageHeight == null ? dataRawHeight : imageHeight);
-                        }
-                        break;
+                if (event == XmlPullParser.START_TAG) {
+                    addImage(item, parser);
                 }
                 try {
                     event = parser.next();
-                } catch (XmlPullParserException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+//                    e.printStackTrace();
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void addImage(Item item, XmlPullParser parser) {
+        if ("img".equals(parser.getName())) {
+            int count = parser.getAttributeCount();
+            String imageUrl = null, imageWidth = null, imageHeight = null, dataRawWidth = null, dataRawHeight = null;
+            for (int i = 0; i < count; i++) {
+                String key = parser.getAttributeName(i);
+                if ("src".equals(key.toLowerCase())) {
+                    imageUrl = parser.getAttributeValue(i);
+                }
+                if ("width".equals(key.toLowerCase())) {
+                    imageWidth = parser.getAttributeValue(i);
+                }
+                if ("height".equals(key.toLowerCase())) {
+                    imageHeight = parser.getAttributeValue(i);
+                }
+                if ("data-rawwidth".equals(key.toLowerCase())) {
+                    dataRawWidth = parser.getAttributeValue(i);
+                }
+                if ("data-rawheight".equals(key.toLowerCase())) {
+                    dataRawHeight = parser.getAttributeValue(i);
+                }
+            }
+            item.setImageUrl(imageUrl);
+            item.setImageWidth(imageWidth == null ? dataRawWidth : imageWidth);
+            item.setImageHeight(imageHeight == null ? dataRawHeight : imageHeight);
+        }
+    }
+
+    private boolean hasImage(Item item, Rss2Item rss2Item) {
+        String image = TextUtils.isEmpty(rss2Item.image) ? rss2Item.focusPic : rss2Item.image;
+        if (!TextUtils.isEmpty(image)) {
+            item.setImageUrl(image);
+            return true;
+        }
+        return false;
     }
 
     /**

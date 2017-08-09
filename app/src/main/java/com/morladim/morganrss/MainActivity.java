@@ -43,7 +43,31 @@ public class MainActivity extends AppCompatActivity
     //    private List<Item> data;
     private Rss2Adapter adapter;
 
-    public static final String rssUrl = "https://www.zhihu.com/rss";
+    public static final String rssUrl = "http://www.toodaylab.com/feed";
+//    public static final String rssUrl = "http://www.qingniantuzhai.com/feed";
+//    public static final String rssUrl = "http://jandan.net/feed";
+//    public static final String rssUrl = "http://www.dxy.cn/bbs/rss/2.0/all.xml";
+//    public static final String rssUrl = "http://www.infoq.com/cn/feed";//待测试
+//    public static final String rssUrl = "http://www.oschina.net/news/rss";
+//    public static final String rssUrl = "http://www.geekpark.net/rss";
+//    public static final String rssUrl = "https://www.huxiu.com/rss/4.xml";
+//    public static final String rssUrl = "https://sspai.com/feed";
+//    public static final String rssUrl = "http://www.pingwest.com/feed/";
+//    public static final String rssUrl = "http://www.sootoo.com/feeds/tag/5.xml";
+//    public static final String rssUrl = "https://www.huxiu.com/rss/0.xml";
+//    public static final String rssUrl = "http://www.tmtpost.com/rss.xml";
+//    public static final String rssUrl = "http://www.qdaily.com/feed.xml";
+//    public static final String rssUrl = "http://blog.sina.com.cn/rss/yilinzazhi.xml";
+//    public static final String rssUrl = "http://36kr.com/feed/";
+//    public static final String rssUrl = "http://www.techweb.com.cn/rss/focus.xml";
+//    public static final String rssUrl = "http://cn.engadget.com/rss.xml";
+//    public static final String rssUrl = "http://www.juzicy.com/blog/feed";
+//    public static final String rssUrl = "http://www.adaymag.com/feed/";
+//    public static final String rssUrl = "http://feed.smzdm.com/";
+//    public static final String rssUrl = "http://www.ifanr.com/feed";
+//    public static final String rssUrl = "http://www.williamlong.info/blog/rss.xml";
+//    public static final String rssUrl = "http://feed.read.org.cn";
+//    public static final String rssUrl = "https://www.zhihu.com/rss";
 //    public static final String rssUrl = "http://www.appinn.com/feed/";
 
     @Override

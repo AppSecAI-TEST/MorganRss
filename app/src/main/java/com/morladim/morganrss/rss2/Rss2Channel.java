@@ -23,11 +23,11 @@ public class Rss2Channel {
     @Element(name = "title", required = false)
     public String title;
 
-    /**
-     * 语言
-     */
-    @Element(name = "language", required = false)
-    public String language;
+//    /**
+//     * 语言
+//     */
+//    @Element(name = "language", required = false)
+//    public String language;
 
     /**
      * 频道图片

@@ -57,6 +57,9 @@ public class DateUtils {
     }
 
     public static String getTimeToNow(Date date) {
+        if (date == null) {
+            return "未知时间";
+        }
         long time = new Date().getTime() - date.getTime();
         return getFormatDate(time);
     }
