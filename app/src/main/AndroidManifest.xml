@@ -21,6 +21,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".image.SingleTouchImageViewActivity"
+            android:launchMode="singleTop"
+            android:process=":picture" />
+
+        <service
+            android:name=".image.ImageService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":picture"/>
     </application>
 
 </manifest>

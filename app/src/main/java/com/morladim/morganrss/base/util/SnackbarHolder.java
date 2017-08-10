@@ -1,4 +1,4 @@
-package com.morladim.morganlibrary;
+package com.morladim.morganrss.base.util;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorRes;
@@ -6,6 +6,8 @@ import android.support.annotation.DrawableRes;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.TextView;
+
+import com.morladim.morganrss.R;
 
 import static android.support.design.widget.Snackbar.SnackbarLayout;
 
@@ -15,17 +17,18 @@ import static android.support.design.widget.Snackbar.SnackbarLayout;
  *
  * @author morladim
  */
-public enum SnackBarHolder {
+@SuppressWarnings("unused")
+public enum SnackbarHolder {
 
-    INFO(R.color.snake_bar_bg_info, R.color.snake_bar_text_info, R.drawable.ic_highlight_off_black_24dp, null),
-    WARNING(R.color.snake_bar_bg_warn, R.color.snake_bar_text_warn, R.drawable.ic_priority_high_black_24dp, null),
-    ERROR(R.color.snake_bar_bg_error, R.color.snake_bar_text_error, R.drawable.ic_error_outline_black_24dp, "遇到错误"),
-    SUCCESS(R.color.snake_bar_bg_success, R.color.snake_bar_text_success, R.drawable.ic_done_black_24dp, "操作成功");
+    INFO(R.color.snackbarBackgroundInfo, R.color.snackbarTextInfo, R.drawable.ic_error_outline_black_24dp, null),
+    WARNING(R.color.snackbarBackgroundWarn, R.color.snackbarTextWarn, R.drawable.ic_priority_high_black_24dp, null),
+    ERROR(R.color.snackbarBackgroundError, R.color.snackbarTextError, R.drawable.ic_highlight_off_black_24dp, "遇到错误"),
+    SUCCESS(R.color.snackbarBackgroundSuccess, R.color.snackbarTextSuccess, R.drawable.ic_done_black_24dp, "操作成功");
 
     private int bgColorId, textColorId, iconId;
     private String text;
 
-    SnackBarHolder(@ColorRes int bgColorId, @ColorRes int textColorId, @DrawableRes int iconId, String text) {
+    SnackbarHolder(@ColorRes int bgColorId, @ColorRes int textColorId, @DrawableRes int iconId, String text) {
         this.bgColorId = bgColorId;
         this.textColorId = textColorId;
         this.iconId = iconId;
@@ -41,7 +44,7 @@ public enum SnackBarHolder {
         snackbarLayout.setBackgroundColor(bgColorId);
         TextView textView = snackbarLayout.findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(textColorId);
-        Drawable drawable = view.getResources().getDrawable(iconId);
+        Drawable drawable = view.getResources().getDrawable(iconId, view.getContext().getTheme());
         textView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
         textView.setCompoundDrawablePadding(40);
         return snackbar;

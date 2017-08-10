@@ -14,6 +14,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.morladim.morganrss.network.Constants.RETRY_TIMES;
+
 /**
  * <br>创建时间：2017/7/20.
  *
@@ -36,6 +38,7 @@ public class NewsProvider {
                         return null;
                     }
                 })
+                .retry(RETRY_TIMES)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onNext, onError);
 //                .subscribeWith(observable);

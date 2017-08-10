@@ -1,8 +1,12 @@
 package com.morladim.morganrss;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
@@ -12,11 +16,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.morladim.morganlibrary.DateUtils;
 import com.morladim.morganrss.base.RssApplication;
+import com.morladim.morganrss.base.util.DateUtils;
 import com.morladim.morganrss.database.entity.Item;
+import com.morladim.morganrss.image.SingleTouchImageViewActivity;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +43,19 @@ public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private boolean hasMore = true;
 
-    public Rss2Adapter() {
+    private ImageTransformation transformation;
+
+    private IImageManager manager;
+
+    public Rss2Adapter(int width) {
+        transformation = new ImageTransformation(width);
+//        this.manager = manager;
         data = new ArrayList<>();
+    }
+
+
+    public void setManager(IImageManager manager) {
+        this.manager = manager;
     }
 
     /**
@@ -75,8 +94,8 @@ public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder != null) {
-            Rss2VerticalViewHolder rss2VerticalViewHolder = (Rss2VerticalViewHolder) holder;
-            Item item = data.get(position);
+            final Rss2VerticalViewHolder rss2VerticalViewHolder = (Rss2VerticalViewHolder) holder;
+            final Item item = data.get(position);
             rss2VerticalViewHolder.title.setText(item.getTitle());
 //            Spanned spanned = Html.fromHtml(item.getDescription(), imageGetter, null);
             String description = item.getDescription().replaceAll("<img.+?>", "");
@@ -105,9 +124,123 @@ public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             rss2VerticalViewHolder.description.setText(spanned);
             rss2VerticalViewHolder.creator.setText(item.getCreator());
             rss2VerticalViewHolder.date.setText(DateUtils.getTimeToNow(item.getPubDate()));
-            Picasso.with(RssApplication.getContext()).load(item.getImageUrl()).config(Bitmap.Config.RGB_565).into(rss2VerticalViewHolder.imageView);
+
+//            Target target = new Target() {
+//                @Override
+//                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+//
+//                }
+//
+//                @Override
+//                public void onBitmapFailed(Drawable errorDrawable) {
+//
+//                }
+//
+//                @Override
+//                public void onPrepareLoad(Drawable placeHolderDrawable) {
+//
+//                }
+//            };
+
+            System.out.println("===========");
+
+            rss2VerticalViewHolder.description.measure(0, 0);
+            rss2VerticalViewHolder.title.measure(0, 0);
+            System.out.println("rss2VerticalViewHolder.description " + rss2VerticalViewHolder.description.getWidth());
+            System.out.println("rss2VerticalViewHolder.description " + rss2VerticalViewHolder.description.getMeasuredWidth());
+            System.out.println("rss2VerticalViewHolder.title " + rss2VerticalViewHolder.title.getWidth());
+            System.out.println("rss2VerticalViewHolder.title " + rss2VerticalViewHolder.title.getMeasuredWidth());
+            System.out.println("===========");
+
+//            Transformation transformation = new Transformation() {
+//
+//                @Override
+//                public Bitmap transform(Bitmap source) {
+//                    int targetWidth = ((ViewGroup) rss2VerticalViewHolder.imageView.getParent()).getWidth();
+//
+////                    if (targetWidth == 0) {
+////                        rss2VerticalViewHolder.imageView.measure(0, 0);
+////                    }
+////                    targetWidth = rss2VerticalViewHolder.imageView.getMeasuredWidth();
+//                    double aspectRatio = (double) source.getHeight() / (double) source.getWidth();
+//                    int targetHeight = (int) (targetWidth * aspectRatio);
+//                    Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+//                    if (result != source) {
+//                        source.recycle();
+//                    }
+//                    return result;
+//                }
+//
+//                @Override
+//                public String key() {
+//                    return "transformation" + " desiredWidth";
+//                }
+//            };
+
+            Picasso.with(RssApplication.getContext()).load(item.getImageUrl()).config(Bitmap.Config.RGB_565).transform(transformation).into(rss2VerticalViewHolder.imageView, new Callback() {
+                @Override
+                public void onSuccess() {
+                    System.out.println("imageView " + rss2VerticalViewHolder.imageView.getWidth());
+                    System.out.println("imageView " + rss2VerticalViewHolder.imageView.getHeight());
+//                    Picasso.with(RssApplication.getContext()).load(item.getImageUrl())
+//                            .resize(rss2VerticalViewHolder.imageView.getWidth(), rss2VerticalViewHolder.imageView.getHeight())
+//                            .placeholder(rss2VerticalViewHolder.imageView.getDrawable()).config(Bitmap.Config.RGB_565).into(rss2VerticalViewHolder.imageView);
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+            rss2VerticalViewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (manager != null) {
+                        try {
+                            manager.aa(imageViewToBytes(rss2VerticalViewHolder.imageView));
+//                            SingleTouchImageViewActivity.startActivityByBitmap(rss2VerticalViewHolder.imageView,item.getImageUrl());
+                            SingleTouchImageViewActivity.startActivityByBi(item.getImageUrl(),rss2VerticalViewHolder.imageView);
+//                            manager.aa(null);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+//                    Intent intent = new Intent(rss2VerticalViewHolder.imageView.getContext(), ImageService.class);
+//                    rss2VerticalViewHolder.imageView.getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+//                    SingleTouchImageViewActivity.startActivityByBi(rss2VerticalViewHolder.imageView, item.getImageUrl());
+                }
+            });
         }
     }
+
+    private static byte[] Bitmap2Bytes(Bitmap bm) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    private static byte[] imageViewToBytes(ImageView view) {
+        return Bitmap2Bytes(((BitmapDrawable) (view).getDrawable()).getBitmap());
+    }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            IImageManager manager = IImageManager.Stub.asInterface(iBinder);
+            try {
+                manager.a(45);
+//                manager.aa(BitmapFactory.decodeByteArray(new byte[1],0,1));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
 
 //    public class StickerSpan extends ImageSpan {
 //
@@ -142,8 +275,8 @@ public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public Drawable getDrawable(String s) {
-//            return null;
-            return new BitmapDrawable();
+            return null;
+//            return new BitmapDrawable();
         }
     };
 
@@ -227,6 +360,32 @@ public class Rss2Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    private static class ImageTransformation implements Transformation {
+
+        private int imageWidth;
+
+        ImageTransformation(int width) {
+            this.imageWidth = width;
+        }
+
+        @Override
+        public Bitmap transform(Bitmap source) {
+            double aspectRatio = (double) source.getHeight() / (double) source.getWidth();
+            int targetHeight = (int) (imageWidth * aspectRatio);
+            Bitmap result = Bitmap.createScaledBitmap(source, imageWidth, targetHeight, false);
+            if (result != source) {
+                source.recycle();
+            }
+            System.out.println("tar w " + imageWidth);
+            System.out.println("tar h " + targetHeight);
+            return result;
+        }
+
+        @Override
+        public String key() {
+            return "imageWidth " + imageWidth;
+        }
+    }
 //    private static class Rss2HorizontalViewHolder extends RecyclerView.ViewHolder {
 //
 //        TextView title, description, date, creator;

@@ -1,6 +1,12 @@
 package com.morladim.morganrss;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -16,9 +22,11 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.morladim.morganrss.base.RssApplication;
+import com.morladim.morganrss.base.util.ScreenUtils;
 import com.morladim.morganrss.database.ChannelManager;
 import com.morladim.morganrss.database.entity.Channel;
 import com.morladim.morganrss.database.entity.Item;
+import com.morladim.morganrss.image.ImageService;
 import com.morladim.morganrss.main.RssSource;
 import com.morladim.morganrss.network.ErrorConsumer;
 import com.morladim.morganrss.network.NewsProvider;
@@ -159,7 +167,9 @@ public class MainActivity extends AppCompatActivity
 //        refreshLayout.setONLoad
         recyclerView = (RecyclerView) findViewById(R.id.single_recycler);
 //        data = new ArrayList<>();
-        adapter = new Rss2Adapter();
+        System.out.println("sdsd " + ScreenUtils.getScreenWidth(this));
+        System.out.println("sdsd " + ScreenUtils.getScreenHeight(this));
+        adapter = new Rss2Adapter(ScreenUtils.getScreenWidth(this));
 //        adapter = new Rss2Adapter(data);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -224,7 +234,7 @@ public class MainActivity extends AppCompatActivity
 ////                        System.out.println(rss2Xml.channel.atomLink.href);
 //                        System.out.println("ddddddd");
 //
-//                        SnackBarHolder.SUCCESS.getNew((findViewById(R.id.content_main))).show();
+//                        SnackbarHolder.SUCCESS.getNew((findViewById(R.id.content_main))).show();
 //                    }
 //                }, new Consumer<Throwable>() {
 //                    @Override
@@ -265,9 +275,40 @@ public class MainActivity extends AppCompatActivity
 //            }
 //        },0,10);
 
+        Intent intent = new Intent(this, ImageService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
     }
 
-//    AndroidSchedulers
+    private IImageManager manager;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            manager = IImageManager.Stub.asInterface(iBinder);
+            adapter.setManager(manager);
+            try {
+                manager.a(45);
+                manager.aa(new byte[1]);
+//                manager.aa(BitmapFactory.decodeByteArray(new byte[1],0,1));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        unbindService(connection);
+        super.onDestroy();
+    }
+
+    //    AndroidSchedulers
 
 
 //    private OkHttpClient getClient() {

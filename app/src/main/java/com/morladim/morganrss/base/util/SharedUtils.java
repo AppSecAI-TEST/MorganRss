@@ -1,4 +1,4 @@
-package com.morladim.morganlibrary;
+package com.morladim.morganrss.base.util;
 
 import android.app.Application;
 import android.content.SharedPreferences;

@@ -9,4 +9,6 @@ public class Constants {
 
     public static final String COOKIE = "cookie";
 
+    public static final int RETRY_TIMES = 3;
+
 }

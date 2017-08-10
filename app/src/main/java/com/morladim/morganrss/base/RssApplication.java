@@ -2,7 +2,7 @@ package com.morladim.morganrss.base;
 
 import android.app.Application;
 
-import com.morladim.morganlibrary.SharedUtils;
+import com.morladim.morganrss.base.util.SharedUtils;
 
 /**
  * <br>创建时间：2017/7/13.
