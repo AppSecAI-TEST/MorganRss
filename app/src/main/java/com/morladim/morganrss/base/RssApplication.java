@@ -2,6 +2,7 @@ package com.morladim.morganrss.base;
 
 import android.app.Application;
 
+import com.morladim.morganrss.base.util.ImageLoader;
 import com.morladim.morganrss.base.util.SharedUtils;
 
 /**
@@ -21,6 +22,7 @@ public class RssApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SharedUtils.init(this);
+        ImageLoader.init(this);
         context = this;
     }
 

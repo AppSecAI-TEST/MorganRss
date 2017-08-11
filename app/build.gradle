@@ -40,7 +40,7 @@ android {
 
 greendao {
     schemaVersion 6
-    daoPackage 'com.morladim.morganrss.database.dao'
+    daoPackage 'com.morladim.morganrss.base.database.dao'
     targetGenDir 'src/main/java/'
 }
 

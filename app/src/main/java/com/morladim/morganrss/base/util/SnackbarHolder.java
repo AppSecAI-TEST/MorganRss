@@ -12,7 +12,7 @@ import com.morladim.morganrss.R;
 import static android.support.design.widget.Snackbar.SnackbarLayout;
 
 /**
- * 有颜色的snakebar持有者
+ * 有颜色的snackbar持有者
  * <br>创建时间：2017/7/19.
  *
  * @author morladim

@@ -3,6 +3,7 @@ package com.morladim.morganrss.base.util;
 import java.util.Date;
 
 /**
+ * 日期工具类
  * <br>创建时间：2017/8/8.
  *
  * @author morladim
@@ -22,6 +23,10 @@ public class DateUtils {
     private static final String WEEK_BEFORE = "周前";
     private static final String MONTH_BEFORE = "月前";
     private static final String YEAR_BEFORE = "年前";
+
+    private DateUtils() {
+
+    }
 
     private static String getFormatDate(long deltaTime) {
         if (deltaTime < 0) {
@@ -56,6 +61,12 @@ public class DateUtils {
         }
     }
 
+    /**
+     * 返回给定时间到现在经过时间的文字描述
+     *
+     * @param date 制定日期
+     * @return 文字描述
+     */
     public static String getTimeToNow(Date date) {
         if (date == null) {
             return "未知时间";
